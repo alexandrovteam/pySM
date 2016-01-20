@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import numpy as np
 import pandas as pd
 
@@ -5,24 +7,36 @@ __author__ = 'palmer'
 
 
 def calc_fdr_df(target_df, decoy_df, col='mult', ascending=False):
-    import numpy as np
-    import pandas as pd
-    if len(target_df) != len(decoy_df):
-        raise TypeError('target should be same length as decoy {} {}'.format(len(target_df), len(decoy_df)))
-    score_vect = pd.concat((target_df, decoy_df), ignore_index=True)
-    score_vect = score_vect.iloc[np.random.permutation(len(score_vect))]
-    score_vect = score_vect.sort(columns=col, ascending=ascending)
-    decoy_hits = np.cumsum(score_vect.index.values > len(target_df),
-                           dtype=float)  # decoy hits have upper index after concat
-    target_hits = np.cumsum(score_vect.index.values < len(target_df),
-                            dtype=float)  # decoy hits have upper index after concat
+    return calc_fdr_arr(target_df[col], decoy_df[col], ascending=ascending)
 
-    # decoy_hits = np.cumsum(score_tf,dtype=float)
-    # target_hits = np.cumsum(score_tf==False,dtype=float)
-    # fdr_curve = decoy_hits/target_hits
-    fdr_curve = np.asarray([d / t for d, t in zip(decoy_hits, target_hits)])
+
+def calc_fdr_arr(target_arr, decoy_arr, ascending=False):
+    n, m = len(target_arr), len(decoy_arr)
+    if n != m:
+        raise TypeError('target should be same length as decoy {} {}'.format(n, m))
+    ordering = 1 if ascending else -1  # reversed sorting if score is not ascending
+    combined = np.concatenate((target_arr, decoy_arr))
+    combined.sort()
+    target_bag, decoy_bag = _count(target_arr), _count(decoy_arr)
+    unique_sorted = np.unique(combined)[::ordering]
+    target_hits, decoy_hits = [], []
+    for x in unique_sorted:
+        tc, dc = target_bag[x], decoy_bag[x]
+        tc_part, dc_part = float(tc) / (tc + dc), float(dc) / (tc + dc)
+        target_hits.extend([tc_part] * int(tc + dc))
+        decoy_hits.extend([dc_part] * int(tc + dc))
+
+    target_hits, decoy_hits = np.cumsum(target_hits), np.cumsum(decoy_hits)
+    fdr_curve = decoy_hits / target_hits
     fdr_curve[target_hits == 0] = 0
-    return fdr_curve, target_hits, score_vect[col]
+    return fdr_curve, target_hits, combined[::ordering]
+
+
+def _count(it):
+    bag = defaultdict(int)
+    for x in it:
+        bag[x] += 1
+    return bag
 
 
 def get_decoy_df(decoy_adducts, results_data, sf):
