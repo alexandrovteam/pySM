@@ -50,3 +50,34 @@ class CalcFdrDfTest(TestCase):
             assert_array_equal(arr_result[2], case['score_vect'])
             assert_array_equal(df_result[2], case['score_vect'])
 
+
+class FindCrossingTest(TestCase):
+    def test_valid_inputs(self):
+        test_cases = (
+            (([0, 1], 0.5), 0),
+            (([0, 0, 0.8, 1], 0.85), 2),
+            (([0, 0, 0.8, 1], 0.8), 1),
+            (([0, 0.7, 0.8, 0.8, 0.8, 0.8, 0.8, 1], 0.8), 1),
+            (([0, 0.2, 0.8, 1], 0.1), 0),
+            (([0, 0, 0.8, 1], 0), -1),
+            (([0, 0, 0.8, 1], 1), -1),
+            (([0, 0, 0.8, 1], 1.1), -1),
+            (([0, 0, 0.8, 1], -0.1), -1),
+            (([0, 1, 0.5, 0.7, 0.2, 1], 0.6), 4),
+        )
+        for (fdr_curve, fdr_target), expected in test_cases:
+            fdr_curve = np.asarray(fdr_curve)
+            self.assertEqual(find_crossing(fdr_curve, fdr_target), expected)
+
+    def test_invalid_inputs(self):
+        inputs = (
+            ([], 0.5),
+            ([0], 0.5),
+            ([1], 0.5),
+            ([0, 0.99], 0.5),
+            ([0, 0.1, 1.01], 0.5),
+            ([0.1, 0.2, 1], 0.5),
+            ([-0.1, 0.2, 1], 0.5),
+        )
+        for args in inputs:
+            self.assertRaises(ValueError, find_crossing, *args)
