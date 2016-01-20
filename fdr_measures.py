@@ -134,15 +134,43 @@ def calc_fdr_adducts(fd_count, adducts, plausible_adducts, average='mean'):
     return fdr, plausible_hits, implausible_hits
 
 
-def find_crossing(m, fdr_target):
-    import numpy as np
-    mm = np.sign(m[0:-1] - fdr_target) * np.sign(m[1:] - fdr_target)  # looking for zero crossings
-    mm_idx = np.where(mm < 0)
-    if len(mm_idx[0]) == 0:
-        t = -1
-        return t
-    t = mm_idx[0][-1]
-    return t
+def is_fdr_curve(fdr_curve):
+    """
+    A FDR curve has these properties:
+    * It starts at 0 and ends at 1
+    * All points are greater than or equal to zero
+
+    :param fdr_curve: the sequence to be tested
+    :return: True if fdr_curve satisfies the conditions above, False otherwise
+    """
+    if len(fdr_curve) < 2:
+        return False
+    if fdr_curve[0] != 0 or fdr_curve[-1] != 1 or any(fdr_curve[1:-1] < 0):
+        return False
+    return True
+
+
+def find_crossing(fdr_curve, fdr_target):
+    """
+    Find the index of the point before the rightmost crossing point between an FDR curve and a FDR target value.
+
+    Formally speaking, given an array fdr_curve and a number fdr_target, find the smallest index i such that
+    fdr_curve[j] >= fdr_target for all j > i
+
+    :param fdr_curve: the FDR curve as a 1d array
+    :param fdr_target: the target FDR
+    :type fdr_target: float between 0 and 1
+    :return: the index i or -1 if no crossing was found
+    :raise ValueError: if fdr_curve is not a valid FDR curve
+    """
+    if not is_fdr_curve(fdr_curve):
+        raise ValueError("Not a valid FDR curve")
+    if not 0 < fdr_target < 1:
+        return -1
+
+    less_zero_indices = np.where(fdr_curve < fdr_target)[0]
+    i = less_zero_indices[-1]
+    return i
 
 
 def score_msm(score_data_df):
