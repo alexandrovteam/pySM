@@ -11,21 +11,33 @@ def calc_fdr_df(target_df, decoy_df, col='mult', ascending=False):
 
 
 def calc_fdr_arr(target_arr, decoy_arr, ascending=False):
+    """
+    Calculate the FDR curve for arrays of target scores and decoy scores.
+
+    :param target_arr: sequence of scores from sum formulae with target adducts
+    :param decoy_arr: sequence of scores from sum formulae with decoy adducts
+    :param ascending: True if smaller scores are better, False if higher scores are better
+    :raise TypeError: if the two sequences do not have the same length
+    :return:
+     fdr_curve: 1d array, twice as long as each of the input sequences, where the i-th element is the number of
+     decoy hits divided by the number of target hits among the i highest scores (combined).
+
+     target_hits: 1d array, twice as long as each of the input sequences, where the i-th element is the number of
+     target hits among the i highest scores (combined)
+
+     sorted_values: 1d array, twice as long as each of the input sequences, containing the sorted values from both
+     input sequences
+    """
     n, m = len(target_arr), len(decoy_arr)
     if n != m:
         raise TypeError('target should be same length as decoy {} {}'.format(n, m))
     ordering = 1 if ascending else -1  # reversed sorting if score is not ascending
     combined = np.concatenate((target_arr, decoy_arr))
     combined.sort()
+    # count how often each value occurs
     target_bag, decoy_bag = _count(target_arr), _count(decoy_arr)
     unique_sorted = np.unique(combined)[::ordering]
-    target_hits, decoy_hits = [], []
-    for x in unique_sorted:
-        tc, dc = target_bag[x], decoy_bag[x]
-        tc_part, dc_part = float(tc) / (tc + dc), float(dc) / (tc + dc)
-        target_hits.extend([tc_part] * int(tc + dc))
-        decoy_hits.extend([dc_part] * int(tc + dc))
-
+    target_hits, decoy_hits = zip(*_iter_hits(target_bag, decoy_bag, unique_sorted))
     target_hits, decoy_hits = np.cumsum(target_hits), np.cumsum(decoy_hits)
     fdr_curve = decoy_hits / target_hits
     fdr_curve[target_hits == 0] = 0
@@ -37,6 +49,19 @@ def _count(it):
     for x in it:
         bag[x] += 1
     return bag
+
+
+def _iter_hits(bag1, bag2, unique_sorted):
+    # For each unique value, determine how often the value occurs in the target array and decoy array respectively
+    # and yield the fractions (into the hits arrays).
+    # Example: if there are two target scores and one decoy score with the same value, append 2/3, 2/3, 2/3 to the
+    # target_hits array and 1/3, 1/3, 1/3 to the decoy_hits array.
+    # This is to avoid the previously randomized approach of randomly assigning the value to one of the arrays.
+    for x in unique_sorted:
+        tc, dc = bag1[x], bag2[x]
+        tc_part, dc_part = float(tc) / (tc + dc), float(dc) / (tc + dc)
+        for _ in range(int(tc + dc)):
+            yield (tc_part, dc_part)
 
 
 def get_decoy_df(decoy_adducts, results_data, sf):
