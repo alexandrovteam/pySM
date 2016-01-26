@@ -187,8 +187,7 @@ class decoy_adducts():
         # read in raw score file and calculate metabolite signal match
         with open(fname) as f_in:
             self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
-        self.score_data_df["msm"] = score_msm(self.score_data_df)
-        self.score_data_df.sort("sf")  # should this be here?
+        self.score_data_df = self.score_data_df.sort_values(by="sf")
         # store some data info
         self.sf_l = {}
         self.n_sf = {}
@@ -234,7 +233,7 @@ class decoy_adducts():
         # return average score per adduct
         msm_vals = {}
         for a in self.target_adducts:
-            msm_vals[a] = self.get_msm_thresholds(a, fdr_target, n_reps=10, col='msm')
+            msm_vals[a] = self.get_msm_thresholds(a, fdr_target, n_reps=n_reps, col=col)
             # calculate average
             msm_vals[a] = np.median(msm_vals[a])
         return msm_vals
