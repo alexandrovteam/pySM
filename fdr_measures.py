@@ -8,6 +8,7 @@ __author__ = 'palmer'
 
 
 def calc_fdr_df(target_df, decoy_df, col='mult', ascending=False):
+    # possible backward-incompatibility: calc_fdr_df previously returned the last argument as a series, not as an array
     return calc_fdr_arr(target_df[col], decoy_df[col], ascending=ascending)
 
 
@@ -138,8 +139,9 @@ def calc_fdr_adducts(fd_count, adducts, plausible_adducts, average='mean'):
 def is_fdr_curve(fdr_curve):
     """
     A FDR curve has these properties:
-    * It starts at 0 and ends at 1
-    * All points are greater than or equal to zero
+
+    - It starts at 0 and ends at 1
+    - All points are greater than or equal to zero
 
     :param fdr_curve: the sequence to be tested
     :return: True if fdr_curve satisfies the conditions above, False otherwise
@@ -187,7 +189,7 @@ class decoy_adducts():
         # read in raw score file and calculate metabolite signal match
         with open(fname) as f_in:
             self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
-        self.score_data_df = self.score_data_df.sort_values(by="sf")
+        self.score_data_df.sort_values(by="sf", inplace=True)
         # store some data info
         self.sf_l = {}
         self.n_sf = {}
@@ -216,13 +218,12 @@ class decoy_adducts():
         """
             Calculate the MSM crossing point at a given target fdr
         """
-        fdr_curves, target_hits, score_vects = self.get_fdr_curve(adduct, n_reps, col)
+        fdr_curves, _, score_vects = self.get_fdr_curve(adduct, n_reps, col)
         msm_vals = []
-        for n in range(n_reps):
-            crossing_idx = find_crossing(fdr_curves[n], fdr_target)
+        for fdr_curve, score_vect in zip(fdr_curves, score_vects):
+            crossing_idx = find_crossing(fdr_curve, fdr_target)
             if crossing_idx > -1:
-                #msm_vals.append(score_vects[n].iloc[crossing_idx])
-                msm_vals.append(score_vects[n][crossing_idx])
+                msm_vals.append(score_vect[crossing_idx])
             else:
                 msm_vals.append(0)
         return msm_vals
@@ -250,7 +251,6 @@ class decoy_adducts():
         target_hits = []
         score_vects = []
         for col_vector in col_vector_decoy.T[:n_reps]:
-            # decoy_df = pd.DataFrame({"sf": self.sf_l[adduct], col: col_vector})
             fdr_curve, target_hit, score_vect = calc_fdr_arr(target_df[col].values, col_vector, ascending=False)
             fdr_curves.append(fdr_curve)
             target_hits.append(target_hit)

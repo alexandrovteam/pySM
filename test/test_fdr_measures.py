@@ -94,28 +94,47 @@ class DecoyAdductsTest(TestCase):
         fdrs, hits, scores = self.da.get_fdr_curve('H', n_reps=3)
         self.assertTrue(len(fdrs) == len(hits) == len(scores) == 3)
         for expected, actual in zip(self.expected_curves[:3], zip(fdrs, hits, scores)):
-            np.testing.assert_array_almost_equal(actual[0], expected["fdr_curve"])
-            np.testing.assert_array_almost_equal(actual[1], expected["target_hits"])
-            np.testing.assert_array_almost_equal(actual[2], expected["score_vect"])
+            assert_array_almost_equal(actual[0], expected["fdr_curve"])
+            assert_array_almost_equal(actual[1], expected["target_hits"])
+            assert_array_almost_equal(actual[2], expected["score_vect"])
+
+    def test_round_down_if_nreps_too_large(self):
+        self.assertDictEqual({k: list(v) for k, v in self.da.decoy_adducts_get_pass_list(0.5, n_reps=20).items()},
+                             {k: list(v) for k, v in self.da.decoy_adducts_get_pass_list(0.5, n_reps=4).items()})
+        self.assertDictEqual(self.da.get_msm_threshold_per_adduct(0.5, n_reps=20),
+                             self.da.get_msm_threshold_per_adduct(0.5, n_reps=4))
+        assert_array_equal(self.da.get_msm_thresholds('H', 0.5, n_reps=20),
+                           self.da.get_msm_thresholds('H', 0.5, n_reps=4))
+        assert_array_equal(self.da.get_fdr_curve('H', n_reps=20), self.da.get_fdr_curve('H', n_reps=4))
 
     def test_getMsmThresholds_target0_5(self):
         actual_msm_vals = self.da.get_msm_thresholds('H', 0.5, n_reps=3)
         expected_msm_vals = [0.2, 0.75, 0.7]
         for actual, expected in zip(actual_msm_vals, expected_msm_vals):
-            np.testing.assert_array_almost_equal(actual, expected)
+            assert_array_almost_equal(actual, expected)
 
     def test_getMsmThresholds_target0_2(self):
         actual_msm_vals = self.da.get_msm_thresholds('H', 0.2, n_reps=3)
         expected_msm_vals = [0.75, 0.9, 0.75]
         for actual, expected in zip(actual_msm_vals, expected_msm_vals):
-            np.testing.assert_array_almost_equal(actual, expected)
+            assert_array_almost_equal(actual, expected)
 
-    def test_getMsmThresholdPerAdduct(self):
+    def test_getMsmThresholdPerAdduct_target0_5(self):
         actual_msm_thresholds = self.da.get_msm_threshold_per_adduct(0.5, n_reps=3)
         expected_msm_thresholds = {'H': 0.7}
         self.assertDictEqual(actual_msm_thresholds, expected_msm_thresholds)
 
-    def test_decoyAdductsGetPassList(self):
+    def test_getMsmThresholdPerAdduct_target0_2(self):
+        actual_msm_thresholds = self.da.get_msm_threshold_per_adduct(0.2, n_reps=3)
+        expected_msm_thresholds = {'H': 0.75}
+        self.assertDictEqual(actual_msm_thresholds, expected_msm_thresholds)
+
+    def test_decoyAdductsGetPassList_target0_5(self):
         actual_pass_list = {k: list(v) for k, v in self.da.decoy_adducts_get_pass_list(0.5, 3).items()}
         expected_pass_list = {'H': ['sf1', 'sf2', 'sf3']}
+        self.assertDictEqual(actual_pass_list, expected_pass_list)
+
+    def test_decoyAdductsGetPassList_target0_2(self):
+        actual_pass_list = {k: list(v) for k, v in self.da.decoy_adducts_get_pass_list(0.2, 3).items()}
+        expected_pass_list = {'H': ['sf2', 'sf3']}
         self.assertDictEqual(actual_pass_list, expected_pass_list)
