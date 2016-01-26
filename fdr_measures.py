@@ -1,3 +1,4 @@
+import collections
 from collections import defaultdict
 
 import numpy as np
@@ -179,9 +180,10 @@ def score_msm(score_data_df):
 
 class decoy_adducts():
     #### Some class for dealing with FDR results ####
-    def __init__(self, fname, target_adducts, decoy_adducts):
+    def __init__(self, fname, target_adducts, decoy_adducts, shuf=None):
         self.target_adducts = target_adducts
         self.decoy_adducts = decoy_adducts
+        self.shuf = shuf or _shuffle_rows
         # read in raw score file and calculate metabolite signal match
         with open(fname) as f_in:
             self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
@@ -220,7 +222,8 @@ class decoy_adducts():
         for n in range(n_reps):
             crossing_idx = find_crossing(fdr_curves[n], fdr_target)
             if crossing_idx > -1:
-                msm_vals.append(score_vects[n].iloc[crossing_idx])
+                #msm_vals.append(score_vects[n].iloc[crossing_idx])
+                msm_vals.append(score_vects[n][crossing_idx])
             else:
                 msm_vals.append(0)
         return msm_vals
@@ -243,15 +246,20 @@ class decoy_adducts():
                                                  self.score_data_df['sf'].isin(self.sf_l[adduct])][col].values
         data_reps = len(col_vector_decoy) / len(self.sf_l[adduct])
         col_vector_decoy = col_vector_decoy.reshape((self.n_sf[adduct], data_reps))
-        _ = [np.random.shuffle(i) for i in col_vector_decoy]  # shuffle the values in each row
+        self.shuf(col_vector_decoy)
         fdr_curves = []
         target_hits = []
         score_vects = []
-        for n in range(n_reps):
-            col_vector = col_vector_decoy[:, n]
-            decoy_df = pd.DataFrame({"sf": self.sf_l[adduct], col: col_vector})
-            fdr_curve, target_hit, score_vect = calc_fdr_df(target_df, decoy_df, col=col, ascending=False)
+        for col_vector in col_vector_decoy.T[:n_reps]:
+            # decoy_df = pd.DataFrame({"sf": self.sf_l[adduct], col: col_vector})
+            fdr_curve, target_hit, score_vect = calc_fdr_arr(target_df[col].values, col_vector, ascending=False)
             fdr_curves.append(fdr_curve)
             target_hits.append(target_hit)
             score_vects.append(score_vect)
         return fdr_curves, target_hits, score_vects
+
+
+def _shuffle_rows(scores):
+    # consume the iterator without using the values by "inserting" into an empty immutable queue;
+    # see https://docs.python.org/2/library/itertools.html#recipes
+    collections.deque((np.random.shuffle(row) for row in scores), maxlen=0)
