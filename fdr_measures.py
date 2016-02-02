@@ -189,6 +189,7 @@ class decoy_adducts():
         # read in raw score file and calculate metabolite signal match
         with open(fname) as f_in:
             self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
+        self.score_data_df["msm"] = score_msm(self.score_data_df)
         self.score_data_df.sort_values(by="sf", inplace=True)
         # store some data info
         self.sf_l = {}

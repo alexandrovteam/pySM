@@ -86,9 +86,17 @@ class FindCrossingTest(TestCase):
 
 class DecoyAdductsTest(TestCase):
     def setUp(self):
-        self.da = decoy_adducts("DecoyAdducts_getFdrCurve_input.csv", ("H",), ("He", "Cd", 'Ha', "Hb"),
+        self.da = decoy_adducts("DecoyAdducts_input.csv", ("H",), ("He", "Cd", 'Ha', "Hb"),
                                 shuf=lambda _: None)
-        self.expected_curves = json.load(open("DecoyAdducts_getFdrCurve_output.json", 'r'))
+        self.expected_curves = json.load(open("DecoyAdducts_expected_curves.json", 'r'))
+
+    def test_init(self):
+        with open("DecoyAdducts_score_df_after_msm.csv") as fn:
+            expected_df = pd.read_csv(fn)
+            expected_df.sort_values(by="sf", inplace=True)
+            for k in expected_df:
+                for expected, actual in zip(expected_df[k], self.da.score_data_df[k]):
+                    self.assertAlmostEqual(actual, expected)
 
     def test_getFdrCurve(self):
         fdrs, hits, scores = self.da.get_fdr_curve('H', n_reps=3)
