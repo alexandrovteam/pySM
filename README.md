@@ -1,36 +1,37 @@
 # README #
 
-Reference implementation for the SpatialMetabolomics processing pipeline
+This repository accompanies the article: 
+FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry
+*Andrew Palmer, Michael Becker, Ilya Chernyavsky, Dominik Fay, Artem Tarasov, Vitaly Kovalev, Jens Fuchser, Sergey Nikolenko, Theodore Alexandrov*
+
 
 ### What is this repository for? ###
 
-This is a reference implementation of our pipeline for annotating high-resolution imaging mass spectrometry data. It is scientific code for demonstration purposes only.
+This is a reference implementation of our pipeline for false-discovery-rate controlled annotation of high-resolution imaging mass spectrometry data. 
+
 
 ### How do I get set up? ###
 
-* Requires pyIMS and pyMS
-    * clone from https://github.com/andy-d-palmer/pyMS, https://github.com/andy-d-palmer/pyIMS
-    * add the local directory to the python path os.path.append(my/local//directory/python_code)
-* install pyimzml
-    * pip install pyimzml
-* other dependencies:
-    * h5py <for some data type support>
+* The following python dependancies can be installed with pip
+    * pyimzml
     * numpy
     * scipy
-* Clone pySpatialMetabolomics
-    * https://github.com/andy-d-palmer/pySpatialMetabolomics
-    * add the local directory to the python path
+* The following dependancies must be cloned from their github repositories
+    * https://github.com/alexandrovteam/pySM
+    * https://github.com/alexandrovteam/pyMS
+    * https://github.com/alexandrovteam/pyIMS
+* remember to add the clone directories to the python path
+    '''python
+    import sys
+    sys.path.append(../clone/directory/)
+    '''
+* 
 
 ### Processing a dataset ###
 * Data should be in .imzml format
-* The pipeline currently only supports centroid data
-    * using centroided data is **highly** recommended for run time and annotation performance
-
-
-### Contribution guidelines ###
-
-* Run it, see what happens, ask Andy questions
+    * The pipeline is currently only designed for centroid data. Using centroided data is **highly** recommended for run time and annotation performance
+* Instructions for running the pipeline on the data accompanying the paper can be found in the example folder
 
 ### Who do I talk to? ###
-
-palmer@embl.de
+If you're having difficulty running the pipeline get in touch with palmer@embl.de
+http://www.embl.de/research/units/scb/alexandrov/
