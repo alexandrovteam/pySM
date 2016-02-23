@@ -25,7 +25,7 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
     import sys
     sys.path.append(../clone/directory/)
     '''
-* 
+
 
 ### Processing a dataset ###
 * Data should be in .imzml format
