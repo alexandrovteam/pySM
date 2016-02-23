@@ -101,7 +101,7 @@ def plot_images(ion_datacube,iso_spect,iso_max,q_val=99,c_map='hot'):
     import numpy as np
     import matplotlib.pyplot as plt
     from pyIMS.image_measures import level_sets_measure, isotope_image_correlation, isotope_pattern_match
-    measure_value_score = 1 - level_sets_measure.measure_of_chaos(
+    measure_value_score = level_sets_measure.measure_of_chaos(
                     ion_datacube.xic_to_image(0), 30, interp="median")[0]
     # 3. Score correlation with monoiso
     if len(iso_spect[1]) > 1:
@@ -134,9 +134,11 @@ def plot_images(ion_datacube,iso_spect,iso_max,q_val=99,c_map='hot'):
 
         ax[ii].imshow(im,cmap=c_map,interpolation='nearest')
         ax[ii].set_title('m/z: {:3.4f}'.format(iso_spect[0][ii]))
+        ax[ii].set_xticks([],[])
+        ax[ii].set_yticks([],[])
     # plot spectrum
     notnull=ion_datacube.xic_to_image(0)>0
-    data_spect = [np.sum(ion_datacube.xic_to_image(ii)) for ii in range(0,iso_max)]
+    data_spect = [np.sum(ion_datacube.xic_to_image(ii)[notnull]) for ii in range(0,iso_max)]
     data_spect = data_spect / np.linalg.norm(data_spect)
     iso_spect[1] = iso_spect[1]/np.linalg.norm(iso_spect[1])
 
