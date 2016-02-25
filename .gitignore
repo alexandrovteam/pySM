@@ -4,3 +4,4 @@
 /.idea/
 /.ipynb_checkpoints/
 *~
+/pySM.egg-info/
