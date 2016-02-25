@@ -18,15 +18,13 @@
 #       * "name" - short name for the dataset
 # - other fields can be edited as required (e.g. change pl_adducts for negative mode)
 import sys
-sys.path.append('/path/to/python_codebase/pyMS')
 sys.path.append('/path/to/python_codebase/pyIMS')
-sys.path.append('/path/to/python_codebase/pySM')
 # Run Pipeline
-from pySpatialMetabolomics import spatial_metabolomics
+from pySM import spatial_metabolomics
 json_filename = "./sm_paper_data/sim001_squares/sim001_standalone_config.json"
 spatial_metabolomics.run_pipeline(json_filename)
 # View results
-from  pySpatialMetabolomics import spatial_metabolomics, fdr_measures
+from  pySM import spatial_metabolomics, fdr_measures
 target_adducts = ["H","Na","K"]   
 decoy_adducts = ["He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Ir", "Th", "Pt", "Pu", "Os", "Yb", "Lu", "Bi", "Pb", "Re", "Tl", "Tm", "U", "W", "Au", "Er", "Hf", "Hg", "Ta"]   
 config = spatial_metabolomics.get_variables(json_filename)
