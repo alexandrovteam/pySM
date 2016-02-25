@@ -1,8 +1,5 @@
 import numpy as np
-import sys
 import os
-sys.path.append('/Users/palmer/Documents/python_codebase/')
-
 
 def d_update(d, u):
     import collections
@@ -36,7 +33,7 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
         try:
             if verbose:
                 print sum_formula, adduct
-            sf = pyisocalc.complex_to_simple(sum_formula+adduct)
+            sf = pyisocalc.parseSumFormula(sum_formula+adduct)
         except KeyError as e:
             if str(e).startswith("KeyError: "):
                 print str(e)
@@ -48,12 +45,16 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
             else:
                 print sum_formula, adduct
                 raise
-        if sf == None: #negative atoms as a result of simplification
-            print 'negative adduct for {} : {}'.format(sum_formula,adduct)
+        except pyisocalc.InvalidFormulaError as e:
+            print str(e)
             continue
+        #if sf == None: #negative atoms as a result of simplification
+        #    print 'negative adduct for {} : {}'.format(sum_formula,adduct)
+        #    continue
         try:
-            isotope_ms = pyisocalc.isodist(sf, plot=False, sigma=isocalc_sig, charges=charge,
-                                       resolution=isocalc_resolution, do_centroid=isocalc_do_centroid)
+            isotope_ms = pyisocalc.complete_isodist(sf,sigma=isocalc_sig,charge=charge, pts_per_mz=isocalc_resolution)
+            #isotope_ms = pyisocalc.isodist(sf, plot=False, sigma=isocalc_sig, charges=charge,
+            #                           resolution=isocalc_resolution, do_centroid=isocalc_do_centroid)
         except KeyError as e:
             if str(e).startswith("KeyError: "):
                 print str(e)
@@ -67,7 +68,7 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
 
 
 def generate_isotope_patterns(config,verbose=True):
-    from pySpatialMetabolomics.parse_databases import parse_databases
+    from pySM.parse_databases import parse_databases
 
     import pickle
     # Extract variables from config dict
@@ -103,6 +104,8 @@ def generate_isotope_patterns(config,verbose=True):
             mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
                                                      isocalc_resolution=isocalc_resolution, charge=charge)
             if db_dump_folder != "":
+                if not os.path.exists(db_dump_folder):
+                    os.makedirs(db_dump_folder)
                 pickle.dump(mz_list_tmp, open(load_file, 'w'))
         # add patterns to total list
         for sum_formula in sum_formulae:
@@ -154,8 +157,8 @@ def apply_image_processing(config, ion_datacube):
     return None
 
 def run_search(config, IMS_dataset, sum_formulae, adducts, mz_list):
-    from pyIMS.image_measures import level_sets_measure, isotope_image_correlation, isotope_pattern_match
     import time
+    from pyIMS import image_measures
     ### Runs the main pipeline
     # Get sum formula and predicted m/z peaks for molecules in database
     ppm = config['image_generation']['ppm']  # parts per million -  a measure of how accuracte the mass spectrometer is
@@ -190,18 +193,18 @@ def run_search(config, IMS_dataset, sum_formulae, adducts, mz_list):
                 if do_preprocessing:
                     apply_image_processing(config,ion_datacube) #currently just supports hot-spot removal
                 # 2. Spatial Chaos
-                measure_value_score[sum_formula][adduct] = level_sets_measure.measure_of_chaos(
-                    ion_datacube.xic_to_image(0), nlevels, interp=None, clean_im=False)[0]
+                measure_value_score[sum_formula][adduct] = image_measures.measure_of_chaos(
+                    ion_datacube.xic_to_image(0), nlevels)
                 if measure_value_score[sum_formula][adduct] == 1:
                     measure_value_score[sum_formula][adduct] = 0
                 # 3. Score correlation with monoiso
                 if len(mz_list[sum_formula][adduct][1]) > 1:
-                    iso_correlation_score[sum_formula][adduct] = isotope_image_correlation.isotope_image_correlation(
+                    iso_correlation_score[sum_formula][adduct] = image_measures.isotope_image_correlation(
                         ion_datacube.xic, weights=mz_list[sum_formula][adduct][1][1:])
                 else:  # only one isotope peak, so correlation doesn't make sense
                     iso_correlation_score[sum_formula][adduct] = 1
                 # 4. Score isotope ratio
-                iso_ratio_score[sum_formula][adduct] = isotope_pattern_match.isotope_pattern_match(ion_datacube.xic,
+                iso_ratio_score[sum_formula][adduct] = image_measures.isotope_pattern_match(ion_datacube.xic,
                                                                                                    mz_list[sum_formula][
                                                                                                        adduct][1])
             except KeyError as e:
@@ -245,8 +248,8 @@ def output_results(config, measure_value_score, iso_correlation_score, iso_ratio
     iso_ratio_tol = config['results_thresholds']['iso_ratio_tol']
     # sum_formulae,adducts,mz_list = generate_isotope_patterns(config)
     # Save the processing results
-    if os.path.isdir(output_dir) == False:
-        os.mkdir(output_dir)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     filename_out = generate_output_filename(config,adducts,fname=fname)
     with open(filename_out, 'w') as f_out:
         f_out.write('sf,adduct,mz,moc,spat,spec,pass\n'.format())
@@ -448,6 +451,11 @@ def fdr_selection(mz_list,pl_adducts, n_im):
 
 
 def run_pipeline(JSON_config_file):
+    """
+    Main function to run the SM MSM scoring pipeline
+    :param JSON_config_file: filename to JSON containing config info
+    :return:
+    """
     config = get_variables(JSON_config_file)
     sum_formulae, adducts, mz_list = generate_isotope_patterns(config)
     if 'fdr' in config:
