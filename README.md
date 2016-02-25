@@ -12,14 +12,26 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 
 ### How do I get set up? ###
 
-* The following python dependancies can be installed with pip
-    * pyimzml
-    * numpy
-    * scipy
-* The following dependancies must be cloned from their github repositories
-    * https://github.com/alexandrovteam/pySM
-    * https://github.com/alexandrovteam/pyMS
-    * https://github.com/alexandrovteam/pyIMS
+* The following python dependancies can be installed from pypi with pip
+    *  ```
+       sudo pip install numpy
+      ```
+    * ```
+       sudo pip install scipy
+      ```
+   *  ```
+       sudo pip install pyimzml
+      ```
+* The following libraries can be installed directly from git
+    * ```
+       sudo pip install git+https://github.com/alexandrovteam/pySM
+      ```
+    * ```
+       sudo pip install git+https://github.com/alexandrovteam/pyMS@adp
+      ```
+    * ```
+       sudo pip install git+https://github.com/alexandrovteam/pyIMS@adp
+      ```
 * remember to add the clone directories to the python path
     '''python
     import sys
@@ -30,7 +42,7 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 ### Processing a dataset ###
 * Data should be in .imzml format
     * The pipeline is currently only designed for centroid data. Using centroided data is **highly** recommended for run time and annotation performance
-* Instructions for running the pipeline on the data accompanying the paper can be found in the example folder
+* An example for running the pipeline on the data accompanying the paper can be found [here](https://github.com/alexandrovteam/pySM/tree/master/pySM/example)
 
 ### Who do I talk to? ###
 If you're having difficulty running the pipeline get in touch with palmer@embl.de
