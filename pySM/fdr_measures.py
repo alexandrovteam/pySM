@@ -147,9 +147,13 @@ def is_fdr_curve(fdr_curve):
     :return: True if fdr_curve satisfies the conditions above, False otherwise
     """
     if len(fdr_curve) < 2:
-        return False
-    if fdr_curve[0] != 0 or fdr_curve[-1] != 1 or any(fdr_curve[1:-1] < 0):
-        return False
+        raise ValueError("FDR length < 2")
+    if fdr_curve[0] != 0:
+        raise ValueError("FDR start not 0")
+    if not np.allclose(fdr_curve[-1], 1.0):
+        raise ValueError("FDR end not 1")
+    if any(fdr_curve[1:-1] < 0):
+        raise ValueError("FDR values not all > 0")
     return True
 
 
@@ -246,7 +250,10 @@ class decoy_adducts():
         col_vector_decoy = self.score_data_df.ix[self.score_data_df['adduct'].isin(self.decoy_adducts) &
                                                  self.score_data_df['sf'].isin(self.sf_l[adduct])][col].values
         data_reps = len(col_vector_decoy) / len(self.sf_l[adduct])
-        col_vector_decoy = col_vector_decoy.reshape((self.n_sf[adduct], data_reps))
+        try:
+            col_vector_decoy = col_vector_decoy.reshape((self.n_sf[adduct], data_reps))
+        except ValueError as e:
+            print len(col_vector_decoy) , len(self.sf_l[adduct]), np.shape(self.score_data_df), adduct, self.n_sf[adduct], data_reps
         self.shuf(col_vector_decoy)
         fdr_curves = []
         target_hits = []
