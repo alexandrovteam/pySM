@@ -1,6 +1,6 @@
 import numpy as np
 import os
-
+import pyMS
 def d_update(d, u):
     import collections
     #http://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
@@ -33,7 +33,11 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
         try:
             if verbose:
                 print sum_formula, adduct
-            sf = pyisocalc.parseSumFormula(sum_formula+adduct)
+            try:
+                sf = pyisocalc.parseSumFormula("{}+{}".format(sum_formula,adduct))
+            except pyMS.pyisocalc.canopy.sum_formula.ParseError as e:
+                print "error->", str(e), sum_formula, adduct
+                continue
         except KeyError as e:
             if str(e).startswith("KeyError: "):
                 print str(e)
@@ -66,10 +70,15 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
 
     return mz_list
 
+def save_pattern(load_file, db_dump_folder, mz_list_tmp):
+    import pickle
+    if db_dump_folder != "":
+        if not os.path.exists(db_dump_folder):
+            os.makedirs(db_dump_folder)
+        pickle.dump(mz_list_tmp, open(load_file, 'w'))
 
 def generate_isotope_patterns(config,verbose=True):
     from pySM.parse_databases import parse_databases
-
     import pickle
     # Extract variables from config dict
     db_filename = config['file_inputs']['database_file']
@@ -97,16 +106,21 @@ def generate_isotope_patterns(config,verbose=True):
         if os.path.isfile(load_file):
             if verbose:
                 print  "{} -> loading".format(load_file)
-            mz_list_tmp = pickle.load(open(load_file, 'r'))
+            try:
+                mz_list_tmp = pickle.load(open(load_file, 'r'))
+            except ValueError as e:
+                if verbose:
+                    print str(e)
+                    print "{} -> generating".format(load_file)
+                mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
+                                                     isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
+                save_pattern(load_file, db_dump_folder, mz_list_tmp)
         else:
             if verbose:
                 print "{} -> generating".format(load_file)
             mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
-                                                     isocalc_resolution=isocalc_resolution, charge=charge)
-            if db_dump_folder != "":
-                if not os.path.exists(db_dump_folder):
-                    os.makedirs(db_dump_folder)
-                pickle.dump(mz_list_tmp, open(load_file, 'w'))
+                                                     isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
+            save_pattern(load_file, db_dump_folder, mz_list_tmp)
         # add patterns to total list
         for sum_formula in sum_formulae:
             if sum_formula not in mz_list_tmp:# could be missing if [M-a] would have negative atoms
