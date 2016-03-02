@@ -32,7 +32,7 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
     for n, sum_formula in enumerate(sum_formulae):
         try:
             if verbose:
-                print sum_formula, adduct
+                print n/float(len(sum_formulae)), sum_formula, adduct
             try:
                 sf = pyisocalc.parseSumFormula("{}+{}".format(sum_formula,adduct))
             except pyMS.pyisocalc.canopy.sum_formula.ParseError as e:
@@ -67,7 +67,6 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
         if not sum_formula in mz_list:
             mz_list[sum_formula] = {}
         mz_list[sum_formula][adduct] = isotope_ms.get_spectrum(source='centroids')
-
     return mz_list
 
 def save_pattern(load_file, db_dump_folder, mz_list_tmp):
