@@ -1,13 +1,13 @@
 # README #
 
-This repository accompanies the article: 
-FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry
-*Andrew Palmer, Michael Becker, Ilya Chernyavsky, Dominik Fay, Artem Tarasov, Vitaly Kovalev, Jens Fuchser, Sergey Nikolenko, Theodore Alexandrov*
-
+This repository accompanies the article: *Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry*. 
 
 ### What is this repository for? ###
 
 This is a reference implementation of our pipeline for false-discovery-rate controlled annotation of high-resolution imaging mass spectrometry data. 
+
+The repository contains the source code only. The data used in the paper is available at the EBI MetaboLights repository (currently only to the reviewers because the MetaboLights curation is still in progress, will be available to everyone soon and linked here.)
+
 
 
 ### How do I get set up? ###
