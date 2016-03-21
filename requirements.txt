@@ -1,5 +1,9 @@
-numpy
-scipy
-pyimzML
-pyMSpec
-pyImagingMSpec
+numpy==1.10.4
+pandas==0.18.0
+pyImagingMSpec==0.1
+pyimzML==1.1.1
+pyMSpec==0.1
+python-dateutil==2.5.1
+pytz==2016.2
+scipy==0.17.0
+six==1.10.0

@@ -7,21 +7,35 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 
 ## Installation ##
 
-* Tested on Ubuntu 14, Mac OS-X
+* Tested on Ubuntu 14, Mac OS-X 10.11.3
 * Python 2.7
 * 16 GB RAM (depending on dataset size)
+We recommend installing inside a virtual environment 
 
-Install with pip:
-``` sudo pip install git+https://github.com/alexandrovteam/pySM ```
+Create a convenient directory and setup the virual environment
+
+```
+mkdir spatial_metabolomics
+cd spatial_metabolomics
+virtualenv venv
+source venv/bin/activate
+```
+clone the repository
+```git clone https://github.com/alexandrovteam/pySM```
+Install pySM and depdenancies with pip
+``` 
+cd pySM
+pip install . -r requirements.txt
+```
 
 ## Reproducing the Results from the Paper ##
 The annotations reported in the paper can be reproduced using the script in the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/) of this repository 
-* [Clone](https://github.com/alexandrovteam/pySM.git) or [download and unizip](https://github.com/alexandrovteam/pySM/archive/master.zip) this repository 
+* If you installed pySM as above: ```cd spatial_metabolomics/pySM/pySM/example```  else [Clone](https://github.com/alexandrovteam/pySM.git) or [download and unizip](https://github.com/alexandrovteam/pySM/archive/master.zip) this repository 
 * Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access see  please contact [Andrew Palmer](andrew.palmer@embl.de)))
  * From 'study files': download RB_a1s1_data.zip, RB_a2s1_data.zip, RB_a2s2_data.zip
 * Edit the following paths within the 'file_inputs' section of each RB_x.json file:
 ```
-"data_file":"/path/to/imaging_ms_dataset.imzML"
+"data_file":"/path/to/RB_x.imzML"
 "database_load_folder":"/path/to/tmp_folder_for_storing_isotope_patterns
 "results_folder":"/path/to/folder_for_storing_results
 "database_file":"/path/to/pySM/example/hmdb_organic_database.csv" 
