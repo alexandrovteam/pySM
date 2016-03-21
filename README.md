@@ -15,20 +15,21 @@ Install with pip:
 ``` sudo pip install git+https://github.com/alexandrovteam/pySM ```
 
 ## Reproducing the Results from the Paper ##
-The annotations reported in the paper can be reproduced using the scips in the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/) of this repository 
+The annotations reported in the paper can be reproduced using the script in the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/) of this repository 
 * [Clone](https://github.com/alexandrovteam/pySM.git) or [download and unizip](https://github.com/alexandrovteam/pySM/archive/master.zip) this repository 
-* Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access please contact [Andrew Palmer](andrew.palmer@embl.de)))
-* Unzip the files in config.zip files within the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/config.zip)
-* Edit the following paths within'file_inputs'section of the config:
-```json
+* Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access see  please contact [Andrew Palmer](andrew.palmer@embl.de)))
+ * From 'study files': download RB_a1s1_data.zip, RB_a2s1_data.zip, RB_a2s2_data.zip
+* Edit the following paths within the 'file_inputs' section of each RB_x.json file:
+```
 "data_file":"/path/to/imaging_ms_dataset.imzML"
 "database_load_folder":"/path/to/tmp_folder_for_storing_isotope_patterns
 "results_folder":"/path/to/folder_for_storing_results
-"database_file":"/path/to/database.csv" 
+"database_file":"/path/to/pySM/example/hmdb_organic_database.csv" 
 ```
 * From the command line, run the python script for reproducing the annotations reported in the manuscript [link](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/run_example.py) 
 ```
->> python run_example.py
+cd /path/to/pySM/example
+python run_example.py
 ```
 
 
@@ -79,7 +80,8 @@ The following parameters should be set individually for every dataset, other par
   * charge: polarity and charge state to search for (the pipeline currently only supports one charge state at a time). e.g. for negative mode singly charged use ```"charge":[  
         {"polarity":"-", "n_charges":1}
         ],```
-  * isocalc_sig: peaks are predicted with a gaussian shape. This parameter is the sigma parameter. sigma = FWHM/2.3548 or 
+  * isocalc_sig: peaks are predicted with a gaussian shape. This parameter is the sigma parameter. sigma = FWHM/2.3548.
+  * isocalc_resoultion is *not* mass spectral resolution, it is the digitisation rate of the isotope patterns
 
 
 ### Who do I talk to? ###
