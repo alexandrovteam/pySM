@@ -20,12 +20,12 @@ The annotations reported in the paper can be reproduced using the scips in the [
 * Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access please contact [Andrew Palmer](andrew.palmer@embl.de)))
 * Unzip the files in config.zip files within the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/config.zip)
 * Edit the following paths within'file_inputs'section of the config:
-  ```json
-  "data_file":"/path/to/imaging_ms_dataset.imzML"
-  "database_load_folder":"/path/to/tmp_folder_for_storing_isotope_patterns
-  "results_folder":"/path/to/folder_for_storing_results
-  "database_file":"/path/to/database.csv" 
-  ```
+```json
+"data_file":"/path/to/imaging_ms_dataset.imzML"
+"database_load_folder":"/path/to/tmp_folder_for_storing_isotope_patterns
+"results_folder":"/path/to/folder_for_storing_results
+"database_file":"/path/to/database.csv" 
+```
 * From the command line, run the python script for reproducing the annotations reported in the manuscript [link](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/run_example.py) 
 ```
 >> python run_example.py
