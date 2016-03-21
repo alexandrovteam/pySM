@@ -20,7 +20,7 @@ The annotations reported in the paper can be reproduced using the scips in the [
 * Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access please contact [Andrew Palmer](andrew.palmer@embl.de)))
 * Unzip the files in config.zip files within the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/config.zip)
 * Edit the following paths within'file_inputs'section of the config:
-  ```
+  ```json
   "data_file":"/path/to/imaging_ms_dataset.imzML"
   "database_load_folder":"/path/to/tmp_folder_for_storing_isotope_patterns
   "results_folder":"/path/to/folder_for_storing_results
@@ -33,19 +33,16 @@ The annotations reported in the paper can be reproduced using the scips in the [
 
 
 ## Processing a dataset ##
-To process a dataset three things are needed:
-1. a high-resolution imaging MS dataset
-2. a metabolite database
-3. a configuration file 
+To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file 
 
-### Dataset ###
+### 1. Dataset ###
 * Data should be in the .imzML format
     * The pipeline is currently only designed for centroid data. Using centroided data is **highly** recommended for run time and annotation performance.
 
-### Database ###
-The database is a csv with columns for database_id, name, molecular_formula
+### 2. Database ###
+The database is a csv with columns for id, name, exact_mass, formula
 
-### Configuration file ###
+### 3. Configuration file ###
 A complete example configuration can be found [here](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/example_config.json).
 The following parameters should be set individually for every dataset, other parameters can generally be left at their default values
 
