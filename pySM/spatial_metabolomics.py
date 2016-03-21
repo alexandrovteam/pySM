@@ -141,7 +141,7 @@ def generate_isotope_patterns(config,verbose=True):
 
 
 def hot_spot_removal(xics, q):
-    print 'moved to pyIMS.smoothing - should be called'
+    print 'moved to pyImagingMSpec.smoothing - should not be called'
     for xic in xics:
         xic_q = np.percentile(xic, q)
         xic[xic > xic_q] = xic_q
@@ -152,12 +152,12 @@ def apply_image_processing(config, ion_datacube):
     Function to apply pre-defined image processing methods to ion_datacube
     #todo: expose parameters in config
     :param ion_datacube:
-        object from pyIMS.ion_datacube already containing images
+        object from pyImagingMSpec.ion_datacube already containing images
     :return:
         ion_datacube is updated in place.
         None returned
     """
-    from pyIMS import smoothing
+    from pyImagingMSpec import smoothing
     #todo hot_spot_removal shouldn't be separately coded - should be within smooth_methods of config and iterated over
     # every method in smoothing should accept (im,**args)
     q = config['image_generation']['q']
@@ -177,7 +177,7 @@ def apply_image_processing(config, ion_datacube):
 
 def run_search(config, IMS_dataset, sum_formulae, adducts, mz_list):
     import time
-    from pyIMS import image_measures
+    from pyImagingMSpec import image_measures
     ### Runs the main pipeline
     # Get sum formula and predicted m/z peaks for molecules in database
     ppm = config['image_generation']['ppm']  # parts per million -  a measure of how accuracte the mass spectrometer is
@@ -402,7 +402,7 @@ def output_pass_results(config, measure_value_score, iso_correlation_score, iso_
 
 def load_data(config):
     # Parse dataset
-    from pyIMS.inMemoryIMS import inMemoryIMS
+    from pyImagingMSpec.inMemoryIMS import inMemoryIMS
     IMS_dataset = inMemoryIMS(config['file_inputs']['data_file'])
     return IMS_dataset
 
