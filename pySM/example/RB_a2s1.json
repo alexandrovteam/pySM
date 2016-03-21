@@ -8,7 +8,7 @@
    "file_inputs":{  
       "data_file":"RB_a2s1.imzML",
       "database_load_folder":"/databases",
-      "results_folder":"RB_a2s1/",
+      "results_folder":"/RB_a2s1/",
       "database_file":"hmdb_organic_database.csv"
    },
    "fdr":{

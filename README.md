@@ -26,12 +26,16 @@ The annotations reported in the paper can be reproduced using the script in the 
 "results_folder":"/path/to/folder_for_storing_results
 "database_file":"/path/to/pySM/example/hmdb_organic_database.csv" 
 ```
-* From the command line, run the python script for reproducing the annotations reported in the manuscript [link](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/run_example.py) 
+* To annotate the data at 10% FDR
+ * From the command line, navigate to the examples directory  
 ```
 cd /path/to/pySM/example
+```
+ * run the script
+```
 python run_example.py
 ```
-
+* The annotations will be printed to the command line
 
 ## Processing a dataset ##
 To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file 
