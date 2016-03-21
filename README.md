@@ -26,8 +26,8 @@ The annotations reported in the paper can be reproduced using the script in the 
 "results_folder":"/path/to/folder_for_storing_results
 "database_file":"/path/to/pySM/example/hmdb_organic_database.csv" 
 ```
-* To annotate the data at 10% FDR
- * From the command line, navigate to the examples directory  
+* To generate molecular annotations at 10% FDR: 
+ * From the command line, navigate to the example directory  
 ```
 cd /path/to/pySM/example
 ```
