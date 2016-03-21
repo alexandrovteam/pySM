@@ -13,7 +13,6 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 We recommend installing inside a virtual environment 
 
 Create a convenient directory and setup the virual environment
-
 ```
 mkdir spatial_metabolomics
 cd spatial_metabolomics
@@ -21,7 +20,9 @@ virtualenv venv
 source venv/bin/activate
 ```
 clone the repository
-```git clone https://github.com/alexandrovteam/pySM```
+```
+git clone https://github.com/alexandrovteam/pySM
+```
 Install pySM and depdenancies with pip
 ``` 
 cd pySM
@@ -30,7 +31,8 @@ pip install . -r requirements.txt
 
 ## Reproducing the Results from the Paper ##
 The annotations reported in the paper can be reproduced using the script in the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/) of this repository 
-* If you installed pySM as above: ```cd spatial_metabolomics/pySM/pySM/example```  else [Clone](https://github.com/alexandrovteam/pySM.git) or [download and unizip](https://github.com/alexandrovteam/pySM/archive/master.zip) this repository 
+* If you installed pySM as above you already have the example files: ```cd spatial_metabolomics/pySM/pySM/example```  
+  * otherwise [Clone](https://github.com/alexandrovteam/pySM.git) or [download and unizip](https://github.com/alexandrovteam/pySM/archive/master.zip) this repository 
 * Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access see  please contact [Andrew Palmer](andrew.palmer@embl.de)))
  * From 'study files': download RB_a1s1_data.zip, RB_a2s1_data.zip, RB_a2s2_data.zip
 * Edit the following paths within the 'file_inputs' section of each RB_x.json file:
@@ -46,7 +48,7 @@ The annotations reported in the paper can be reproduced using the script in the 
 cd /path/to/pySM/example
 ```
  * run the script
-   * generating isotope patterns can be time conusming, we provide pre-computed patterns [here](https://github.com/alexandrovteam/precompiled_isotope_patterns). Clone the repository and set the "database_load_folder" variable in each of the RB_x.json files to the clone directory and they should be automatically detected. 
+   * generating isotope patterns can be time-consuming, we provide pre-computed patterns [here](https://github.com/alexandrovteam/precompiled_isotope_patterns). Clone the repository and set the "database_load_folder" variable in each of the RB_x.json files to the clone directory and they should be automatically detected. 
 ```
 python run_example.py
 ```
