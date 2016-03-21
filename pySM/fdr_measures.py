@@ -6,6 +6,13 @@ import pandas as pd
 
 __author__ = 'palmer'
 
+def get_adducts(json_filename):
+    import json
+    config = json.loads(open(json_filename).read())
+    target_adducts = [a['adduct'] for a in config['fdr']['pl_adducts']]
+    decoy_adducts = list(set([a['adduct'] for a in config['isotope_generation']['adducts']])-set(target_adducts))
+    return target_adducts, decoy_adducts
+
 
 def calc_fdr_df(target_df, decoy_df, col='mult', ascending=False):
     # possible backward-incompatibility: calc_fdr_df previously returned the last argument as a series, not as an array
