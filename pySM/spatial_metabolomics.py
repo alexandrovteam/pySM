@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import pyMS
+import pyMSpec
 def d_update(d, u):
     import collections
     #http://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
@@ -26,7 +26,7 @@ def get_variables(json_filename):
 ### We simulate a mass spectrum for each sum formula/adduct combination. This generates a set of isotope patterns (see http://www.mi.fu-berlin.de/wiki/pub/ABI/QuantProtP4/isotope-distribution.pdf) which can provide additional informaiton on the molecule detected. This gives us a list of m/z centres for the molecule
 def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocalc_resolution=200000.,
                                    isocalc_do_centroid=True, charge=1,verbose=True):
-    from pyMS.pyisocalc import pyisocalc
+    from pyMSpec.pyisocalc import pyisocalc
     ### Generate a mz list of peak centroids for each sum formula with the given adduct
     mz_list = {}
     for n, sum_formula in enumerate(sum_formulae):
@@ -34,8 +34,8 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
             if verbose:
                 print n/float(len(sum_formulae)), sum_formula, adduct
             try:
-                sf = pyisocalc.parseSumFormula("{}+{}".format(sum_formula,adduct))
-            except pyMS.pyisocalc.canopy.sum_formula.ParseError as e:
+                sf = pyisocalc.parseSumFormula("{}{}".format(sum_formula,adduct))
+            except pyMSpec.pyisocalc.canopy.sum_formula.ParseError as e:
                 print "error->", str(e), sum_formula, adduct
                 continue
         except KeyError as e:
@@ -52,17 +52,17 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
         except pyisocalc.InvalidFormulaError as e:
             print str(e)
             continue
-        #if sf == None: #negative atoms as a result of simplification
-        #    print 'negative adduct for {} : {}'.format(sum_formula,adduct)
-        #    continue
+
         try:
             isotope_ms = pyisocalc.complete_isodist(sf,sigma=isocalc_sig,charge=charge, pts_per_mz=isocalc_resolution)
             #isotope_ms = pyisocalc.isodist(sf, plot=False, sigma=isocalc_sig, charges=charge,
             #                           resolution=isocalc_resolution, do_centroid=isocalc_do_centroid)
+        except MemoryError as e:
+            print sf, str(e)
+            continue
         except KeyError as e:
-            if str(e).startswith("KeyError: "):
-                print str(e)
-                continue
+            print str(e)
+            continue
 
         if not sum_formula in mz_list:
             mz_list[sum_formula] = {}
@@ -129,6 +129,12 @@ def generate_isotope_patterns(config,verbose=True):
             ## this limit of 4 is hardcoded to reduce the number of calculations
             n = np.min([4,len(mz_list_tmp[sum_formula][adduct][0])])
             mz_list[sum_formula][adduct] = [mz_list_tmp[sum_formula][adduct][0][0:n],mz_list_tmp[sum_formula][adduct][1][0:n]]
+        rm_list = []
+        for sum_formula in sum_formulae:
+            if sum_formula not in mz_list:
+                rm_list.append(sum_formula)
+        for sum_formula in rm_list:
+            sum_formulae.pop(sum_formula,None)
     if verbose:
         print  'all isotope patterns generated and loaded'
     return sum_formulae, adducts, mz_list
@@ -186,8 +192,13 @@ def run_search(config, IMS_dataset, sum_formulae, adducts, mz_list):
     for adduct in adducts:
         print 'searching -> {}'.format(adduct)
         for ii,sum_formula in enumerate(sum_formulae):
-            if adduct not in mz_list[sum_formula]:#adduct may not be present if it would make an impossible formula, is there a better way to handle this?
-                # print '{} adduct not found for {}'.format(adduct, mz_list[sum_formula])
+            if sum_formula not in mz_list:
+                print 'mssing sf: {}'.format(sum_formula)
+                continue
+            if adduct not in mz_list[sum_formula]:
+                # adduct may not be present if it would make an impossible formula, is there a better way to handle this?
+                # this hack is also used for fdr calculations
+                # print '{} adduct not found for {}'.format(adduct, sum_formula)
                 continue
             if time.time() - t_el > 10.:
                 t_el = time.time()
@@ -484,7 +495,7 @@ def exact_mass(JSON_config_file):
     sum_formulae, adducts, mz_list = generate_isotope_patterns(config)
     IMS_dataset = load_data(config)
     spec_axis,mean_spec =IMS_dataset.generate_summary_spectrum(summary_type='mean',ppm=config['image_generation']['ppm']/2)
-    from pyMS.centroid_detection import gradient
+    from pyMSpec.centroid_detection import gradient
     import numpy as np
     mzs,counts,idx_list = gradient(np.asarray(spec_axis),np.asarray(mean_spec),weighted_bins=2)
     ppm_value_score = run_exact_mass_search(config,  mzs,counts, sum_formulae, adducts, mz_list)
@@ -496,7 +507,7 @@ def frequency_filter(JSON_config_file):
     sum_formulae, adducts, mz_list = generate_isotope_patterns(config)
     IMS_dataset = load_data(config)
     #spec_axis,mean_spec =IMS_dataset.generate_summary_spectrum(summary_type='hist',ppm=config['image_generation']['ppm']/2)
-    #from pyMS.centroid_detection import gradient
+    #from pyMSpec.centroid_detection import gradient
     #import numpy as np
     #mzs,counts,idx_list = gradient(np.asarray(spec_axis),np.asarray(mean_spec),weighted_bins=2)
     ppm_value_score = run_frequency_mass_search(config,  IMS_dataset, sum_formulae, adducts, mz_list)
