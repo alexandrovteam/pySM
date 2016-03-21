@@ -32,6 +32,7 @@ The annotations reported in the paper can be reproduced using the script in the 
 cd /path/to/pySM/example
 ```
  * run the script
+   * generating isotope patterns can be time conusming, we provide pre-computed patterns [here](https://github.com/alexandrovteam/precompiled_isotope_patterns). Clone the repository and set the "database_load_folder" variable in each of the RB_x.json files to the clone directory and they should be automatically detected. 
 ```
 python run_example.py
 ```
