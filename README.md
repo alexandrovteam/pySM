@@ -12,14 +12,11 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 * 16 GB RAM (depending on dataset size)
 We recommend installing inside a virtual environment 
 
-Create a convenient directory
+Create a convenient directory clone the repository
+
 ```
 mkdir spatial_metabolomics
 cd spatial_metabolomics
-
-```
-clone the repository
-```
 git clone https://github.com/alexandrovteam/pySM
 ```
 
@@ -56,7 +53,7 @@ pip install .
   * Data: 
     * Go to the EBI MetaboLights repository ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313) (under embargo during review, for early access contact [Andrew Palmer](andrew.palmer@embl.de)))
     * From 'study files': download RB_a1s1_data.zip, RB_a2s1_data.zip, RB_a2s2_data.zip
-    * Unzip so all pairs of RB_x.imzml, RB_x.ibd files are in the ```/pySM/example/datasets``` folder
+    * Unzip so all RB_x.imzml and RB_x.ibd files are in the ```/pySM/example/datasets``` folder
   * Isotope patterns (optional)
     * generating isotope patterns can be time-consuming, we provide pre-computed patterns [here](https://github.com/alexandrovteam/precompiled_isotope_patterns/archive/master.zip). Unzip into ```/pySM/example/precomputed_patterns```
 2. Run script to produce molecular annotations at 10% FDR: 
