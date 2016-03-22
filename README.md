@@ -74,7 +74,7 @@ unzip 'RB_a*.zip'
 Download precomputed isotope patterns (optional; if not provided will be computed, it might take 10 to 20 hours).
 
 ```bash
-git clone https://github.com/alexandrovteam/precomputed_isotope_patterns pySM/example/precomputed_patterns
+git clone https://github.com/alexandrovteam/precomputed_isotope_patterns pySM/example/precomputed_isotope_patterns
 ```
 Run script to produce molecular annotations for each dataset at the desired FDR equal 0.1:
 ```bash
