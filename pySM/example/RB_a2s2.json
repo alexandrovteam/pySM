@@ -7,7 +7,7 @@
    },
    "file_inputs":{  
       "data_file":"./datasets/RB_a2s2.imzML",
-      "database_load_folder":"./precomputed_patterns",
+      "database_load_folder":"./precomputed_isotope_patterns",
       "results_folder":"./results/RB_a2s2",
       "database_file":"hmdb_organic_database.csv"
    },
