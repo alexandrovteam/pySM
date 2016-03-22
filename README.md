@@ -20,6 +20,7 @@ The code was tested on Ubuntu 14.04 and Mac OS X 10.11.3.
 We recommend installing inside a virtual environment
 
 Create a convenient directory and clone the repository
+```bash
 mkdir spatial_metabolomics
 cd spatial_metabolomics
 git clone https://github.com/alexandrovteam/pySM
@@ -60,7 +61,7 @@ pip install .
 ## Reproducing the results from the paper ##
 
 Download and unzip MALDI imaging MS datasets from the EBI MetaboLights repository.
-  
+
 ```bash
 cd pySM/example/datasets
 wget -O _RB_a1s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a1s1_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
