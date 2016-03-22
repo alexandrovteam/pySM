@@ -90,7 +90,7 @@ cd ..
 ```
 
 #### Download precomputed isotope patterns ####
-Download precomputed isotope patterns for sum formulas from HMDB for the considered target and decoy adducts (optional; if not provided will be computed, it might take 10 to 20 hours):
+Download precomputed isotope patterns for sum formulas from HMDB for the considered target and decoy adducts (optional; if not provided will be computed, this computation might take 10 to 20 hours):
 
 ```bash
 git clone https://github.com/alexandrovteam/precomputed_isotope_patterns 
@@ -98,7 +98,7 @@ git clone https://github.com/alexandrovteam/precomputed_isotope_patterns
 
 #### Perform annotation ####
 
-Run the `run_example.py` script to produce molecular annotations for each dataset at the desired FDR equal to 0.1:
+Perform molecular annotations for each dataset at the desired FDR level of 0.1 as follows (N.B.: the approximate time needed is 10 hours for the RB_a1s1 dataset, and 5 hours for each of the RB_a2s1 and RB_a2s2 datasets):
 ```bash
 python run_example.py
 ```
@@ -112,14 +112,13 @@ The annotations will be printed to the terminal.
 ## General usage ##
 To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file
 
-### 1. Dataset ###
-* Data should be in the .imzML format
-    * The pipeline is currently only designed for centroid data. Using centroided data is **highly** recommended for run time and annotation performance.
+### Dataset ###
+* Data should be in the .imzML format. The pipeline is designed for and was tested on **centroided** data. 
 
-### 2. Database ###
-The database is a csv with columns for id, name, exact_mass, formula
+### Database ###
+The database is a CSV with columns for id, name, exact_mass, formula
 
-### 3. Configuration file ###
+### Configuration file ###
 A complete example configuration can be found [here](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/example_config.json).
 The following parameters should be set individually for every dataset, other parameters can generally be left at their default values
 
@@ -160,5 +159,9 @@ The following parameters should be set individually for every dataset, other par
   * isocalc_resoultion is *not* mass spectral resolution, it is the digitisation rate of the isotope patterns
 
 
-### Who do I talk to? ###
-If you are having difficulty running the pipeline, please get in touch with [Andrew Palmer](andrew.palmer@embl.de).
+### Contact
+* email: [Andrew Palmer](andrew.palmer@embl.de)
+* twitter:  [@alexandrovteam](https://twitter.com/alexandrovteam "alexandrovteam on twitter")
+ 
+### Licence
+The source code in this repository is distributed under [the Apache 2.0 licence](https://github.com/alexandrovteam/pySM/blob/master/licence).
