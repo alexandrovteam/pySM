@@ -12,21 +12,43 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 * 16 GB RAM (depending on dataset size)
 We recommend installing inside a virtual environment 
 
-Create a convenient directory and setup the virual environment
+Create a convenient directory
 ```
 mkdir spatial_metabolomics
 cd spatial_metabolomics
-virtualenv venv
-source venv/bin/activate
+
 ```
 clone the repository
 ```
 git clone https://github.com/alexandrovteam/pySM
 ```
-Install pySM and depdenancies with pip
+
+### virtualenv
+
+Setup and activate a new virtual environment
+```
+virtualenv venv
+source venv/bin/activate
+```
+
+Install `pySM` and dependencies with `pip`
 ``` 
 cd pySM
 pip install . -r requirements.txt
+```
+
+### conda
+
+Initialize and activate `pySM` environment with all the dependencies
+```
+cd pySM
+conda env create
+source activate pySM
+```
+
+Install `pySM` package with `pip`
+```
+pip install .
 ```
 
 ## Reproducing the Results from the Paper ##
