@@ -8,7 +8,7 @@
    "file_inputs":{  
       "data_file":"./datasets/RB_a2s1.imzML",
       "database_load_folder":"./precomputed_patterns",
-      "results_folder":"./RB_a2s1",
+      "results_folder":"./results/RB_a2s1",
       "database_file":"hmdb_organic_database.csv"
    },
    "fdr":{
