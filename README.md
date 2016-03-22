@@ -52,29 +52,20 @@ pip install .
 ```
 
 ## Reproducing the Results from the Paper ##
-The annotations reported in the paper can be reproduced using the script in the [example folder](https://github.com/alexandrovteam/pySM/blob/master/pySM/example/) of this repository 
-* If you installed pySM as above you already have the example files: ```cd spatial_metabolomics/pySM/pySM/example```  
-  * otherwise [Clone](https://github.com/alexandrovteam/pySM.git) or [download and unizip](https://github.com/alexandrovteam/pySM/archive/master.zip) this repository 
-* Download the imagingMS datasets from the EBI MetaboLights repositories ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313), [MTBLS317](http://www.ebi.ac.uk/metabolights/MTBLS317) (under embargo during review, for early access see  please contact [Andrew Palmer](andrew.palmer@embl.de)))
- * From 'study files': download RB_a1s1_data.zip, RB_a2s1_data.zip, RB_a2s2_data.zip
-* Edit the following paths within the 'file_inputs' section of each RB_x.json file:
+1.  Download files
+  * Data: 
+    * Go to the EBI MetaboLights repository ([MTBLS313](http://www.ebi.ac.uk/metabolights/MTBLS313) (under embargo during review, for early access contact [Andrew Palmer](andrew.palmer@embl.de)))
+    * From 'study files': download RB_a1s1_data.zip, RB_a2s1_data.zip, RB_a2s2_data.zip
+    * Unzip so all pairs of RB_x.imzml, RB_x.ibd files are in the ```/pySM/example/datasets``` folder
+  * Isotope patterns (optional)
+    * generating isotope patterns can be time-consuming, we provide pre-computed patterns [here](https://github.com/alexandrovteam/precompiled_isotope_patterns/archive/master.zip). Unzip into ```/pySM/example/precomputed_patterns```
+2. Run script to produce molecular annotations at 10% FDR: 
+  * run script from example directory
 ```
-"data_file":"/path/to/RB_x.imzML"
-"database_load_folder":"/path/to/tmp_folder_for_storing_isotope_patterns
-"results_folder":"/path/to/folder_for_storing_results
-"database_file":"/path/to/pySM/example/hmdb_organic_database.csv" 
-```
-* To generate molecular annotations at 10% FDR: 
- * From the command line, navigate to the example directory  
-```
-cd /path/to/pySM/example
-```
- * run the script
-   * generating isotope patterns can be time-consuming, we provide pre-computed patterns [here](https://github.com/alexandrovteam/precompiled_isotope_patterns). Clone the repository and set the "database_load_folder" variable in each of the RB_x.json files to the clone directory and they should be automatically detected. 
-```
+cd pySM/example
 python run_example.py
 ```
-* The annotations will be printed to the command line
+  * The annotations will be printed to the command line
 
 ## Processing a dataset ##
 To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file 

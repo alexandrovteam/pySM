@@ -306,6 +306,7 @@ def generate_output_filename(config,adducts,fname=''):
             fname='{}_{}'.format(fname,adduct)
     filename_out = '{}{}{}_{}_full_results.txt'.format(output_dir, os.sep,
                                                     os.path.splitext(os.path.basename(filename_in))[0],fname)
+    filename_out = os.path.join(output_dir,"_".join([os.path.splitext(os.path.basename(filename_in))[0], fname, 'full_results.txt']))
     return filename_out
 
 def output_results_exactMass(config, ppm_value_score, sum_formulae, adducts, mz_list, fname=''):
