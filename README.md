@@ -1,13 +1,16 @@
 # README #
-This repository accompanies the article: *Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry*.
+This repository accompanies the article: *Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry* and provides a reference implementation of our pipeline for false-discovery-rate controlled annotation of high-resolution imaging mass spectrometry data. 
 
-## What is this repository for? ##
-This is a reference implementation of our pipeline for false-discovery-rate controlled annotation of high-resolution imaging mass spectrometry data. The pipeline is developed and implemented by the [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/) at EMBL Heidelberg.
+The pipeline is developed and implemented by the [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/) at EMBL Heidelberg.
+
+For those wishing to reproduce the results from the paper, please follow the instructions from [Reproducing the results from the paper](#reproducing-the-results-from-the-paper).
+
+For more general use, please consider instructions in [General usage](#general-usage).
 
 ## Requirements
 
+* Linux or Mac OS X operating system (was tested on Ubuntu 14.04 and Mac OS X 10.11.3)
 * Python 2.7
-* Linux or Mac OS X operating system (was tested on Ubuntu 14.04 and Mac OS X 10.11.3.)
 * git
 * wget (Ubuntu) or curl (MacOS) 
 * unzip (normally provided on both Ubuntu and MacOS)
@@ -18,15 +21,15 @@ This is a reference implementation of our pipeline for false-discovery-rate cont
 ### Simple installation inside a virtual environment ###
 We recommend installing `pySM` and its dependencies inside a virtual environment as follows.
 
-Create a convenient directory, for example `spatial_metabolomics` and clone into there the repository:
+Create a convenient directory, for example `spatial_metabolomics` and clone the repository into there:
 ```bash
 mkdir spatial_metabolomics
 cd spatial_metabolomics
 git clone https://github.com/alexandrovteam/pySM
 ```
 
-Next, if you have Anaconda installation of Python, use [conda](#conda) installation instructions.
-Otherwise, use [virtualenv](#virtualenv).
+Next, if you have Anaconda installation of Python, follow the [conda](#conda) installation instructions.
+Otherwise, follow the [virtualenv](#virtualenv) instructions.
 
 #### virtualenv
 
@@ -72,6 +75,7 @@ wget -O _RB_a2s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a2
 wget -O _RB_a2s2_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a2s2_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
 unzip '_RB_a*.zip'
 unzip 'RB_a*.zip'
+cd ..
 ```
 
 ##### for MacOS #####
@@ -82,20 +86,20 @@ curl -o _RB_a2s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a2
 curl -o _RB_a2s2_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a2s2_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
 unzip '_RB_a*.zip'
 unzip 'RB_a*.zip'
+cd ..
 ```
 
 #### Download precomputed isotope patterns ####
-Download precomputed isotope patterns for HMDB sum formulas for the considered target and decoy adducts (optional; if not provided will be computed, it might take 10 to 20 hours):
+Download precomputed isotope patterns for sum formulas from HMDB for the considered target and decoy adducts (optional; if not provided will be computed, it might take 10 to 20 hours):
 
 ```bash
-git clone https://github.com/alexandrovteam/precomputed_isotope_patterns pySM/example/precomputed_isotope_patterns
+git clone https://github.com/alexandrovteam/precomputed_isotope_patterns 
 ```
 
 #### Perform annotation ####
 
-Run script to produce molecular annotations for each dataset at the desired FDR equal to 0.1:
+Run the `run_example.py` script to produce molecular annotations for each dataset at the desired FDR equal to 0.1:
 ```bash
-cd pySM/example
 python run_example.py
 ```
 
@@ -105,7 +109,7 @@ The annotations will be printed to the terminal.
 
 
 
-## Processing a dataset ##
+## General usage ##
 To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file
 
 ### 1. Dataset ###
