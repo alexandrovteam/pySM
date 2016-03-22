@@ -4,64 +4,67 @@ This repository accompanies the article: *Palmer et al., FDR-controlled metaboli
 ## What is this repository for? ##
 This is a reference implementation of our pipeline for false-discovery-rate controlled annotation of high-resolution imaging mass spectrometry data. The pipeline is developed and implemented by the [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/) at EMBL Heidelberg.
 
-The code was tested on Ubuntu 14.04 and Mac OS X 10.11.3.
-
 ## Requirements
 
 * Python 2.7
-* Linux or Mac OS X operating system
+* Linux or Mac OS X operating system (was tested on Ubuntu 14.04 and Mac OS X 10.11.3.)
 * git
-* wget
-* unzip
-* 16 GB RAM
+* wget (Ubuntu) or curl (MacOS) 
+* unzip (normally provided on both Ubuntu and MacOS)
+* 16GB RAM
 
-## Installation ##
+## Reproducing the results from the paper ##
 
-We recommend installing inside a virtual environment
+### Simple installation inside a virtual environment ###
+We recommend installing `pySM` and its dependencies inside a virtual environment as follows.
 
-Create a convenient directory and clone the repository
+Create a convenient directory, for example `spatial_metabolomics` and clone into there the repository:
 ```bash
 mkdir spatial_metabolomics
 cd spatial_metabolomics
 git clone https://github.com/alexandrovteam/pySM
 ```
 
-If you have Anaconda installation of Python, use [conda](#conda) installation instructions.
+Next, if you have Anaconda installation of Python, use [conda](#conda) installation instructions.
 Otherwise, use [virtualenv](#virtualenv).
 
-### virtualenv
+#### virtualenv
 
-Setup and activate a new virtual environment
+Setup and activate a new virtual environment:
 ```bash
 pip install virtualenv
 virtualenv venv
 source venv/bin/activate
 ```
 
-Install `pySM` and dependencies with `pip`
+Install `pySM` and dependencies with `pip`:
 ```bash
 cd pySM
 pip install . -r requirements.txt
 ```
 
-### conda
+#### conda
 
-Initialize and activate `pySM` environment with all the dependencies
+Initialize and activate `pySM` environment with all the dependencies:
 ```bash
 cd pySM
 conda env create
 source activate pySM
 ```
 
-Install `pySM` package with `pip`
+Install `pySM` package with `pip`:
 ```bash
 pip install .
 ```
 
-## Reproducing the results from the paper ##
+### Evoking FDR-controlled molecular annotation ###
 
-Download and unzip MALDI imaging MS datasets from the EBI MetaboLights repository.
+This section explains how to run FDR-controlled molecular annotation against HMDB for the three MALDI-FTICR-imaging MS datasets from the coronal rat brain sections considered in the paper.
 
+#### Download data ####
+Download and unzip MALDI-imaging MS datasets from the EBI MetaboLights repository as following [for Ubuntu](#for-Ubuntu) or [for MacOS](#for-MacOS):
+
+##### for Ubuntu ###
 ```bash
 cd pySM/example/datasets
 wget -O _RB_a1s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a1s1_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
@@ -71,18 +74,36 @@ unzip '_RB_a*.zip'
 unzip 'RB_a*.zip'
 ```
 
-Download precomputed isotope patterns (optional; if not provided will be computed, it might take 10 to 20 hours).
+##### for MacOS #####
+```bash
+cd pySM/example/datasets
+curl -o _RB_a1s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a1s1_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
+curl -o _RB_a2s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a2s1_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
+curl -o _RB_a2s2_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a2s2_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
+unzip '_RB_a*.zip'
+unzip 'RB_a*.zip'
+```
+
+#### Download precomputed isotope patterns ####
+Download precomputed isotope patterns for HMDB sum formulas for the considered target and decoy adducts (optional; if not provided will be computed, it might take 10 to 20 hours):
 
 ```bash
 git clone https://github.com/alexandrovteam/precomputed_isotope_patterns pySM/example/precomputed_isotope_patterns
 ```
-Run script to produce molecular annotations for each dataset at the desired FDR equal 0.1:
+
+#### Perform annotation ####
+
+Run script to produce molecular annotations for each dataset at the desired FDR equal to 0.1:
 ```bash
 cd pySM/example
 python run_example.py
 ```
 
 The annotations will be printed to the terminal.
+
+
+
+
 
 ## Processing a dataset ##
 To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file
