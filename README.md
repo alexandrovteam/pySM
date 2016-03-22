@@ -106,9 +106,6 @@ python run_example.py
 The annotations will be printed to the terminal.
 
 
-
-
-
 ## General usage ##
 To process a dataset three things are needed: a high-resolution imaging MS dataset; a metabolite database; and a configuration file
 
@@ -159,9 +156,10 @@ The following parameters should be set individually for every dataset, other par
   * isocalc_resoultion is *not* mass spectral resolution, it is the digitisation rate of the isotope patterns
 
 
-### Contact
+## Contact
 * email: [Andrew Palmer](andrew.palmer@embl.de)
 * twitter:  [@alexandrovteam](https://twitter.com/alexandrovteam "alexandrovteam on twitter")
+
  
-### Licence
+## Licence
 The source code in this repository is distributed under [the Apache 2.0 licence](https://github.com/alexandrovteam/pySM/blob/master/licence).
