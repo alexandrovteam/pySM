@@ -62,7 +62,7 @@ pip install .
 This section explains how to run FDR-controlled molecular annotation against HMDB for the three MALDI-FTICR-imaging MS datasets from the coronal rat brain sections considered in the paper.
 
 #### Download data ####
-Download and unzip MALDI-imaging MS datasets from the EBI MetaboLights repository as following [for Ubuntu](#for-Ubuntu) or [for MacOS](#for-MacOS):
+Download and unzip MALDI-imaging MS datasets from the EBI MetaboLights repository as following [for Ubuntu](#for-ubuntu) or [for MacOS](#for-macos):
 
 ##### for Ubuntu ###
 ```bash
