@@ -1,5 +1,5 @@
 # README #
-This repository accompanies the article: *Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry* and provides a reference implementation of our pipeline for false-discovery-rate controlled annotation of high-resolution imaging mass spectrometry data. 
+This repository accompanies the article: *Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry* and provides a reference implementation of our pipeline for False Discovery Rate-controlled metabolite annotation of high-resolution imaging mass spectrometry data. 
 
 The pipeline is developed and implemented by the [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/) at EMBL Heidelberg.
 
@@ -11,9 +11,9 @@ For more general use, please consider instructions in [General usage](#general-u
 
 * Linux or Mac OS X operating system (was tested on Ubuntu 14.04 and Mac OS X 10.11.3)
 * Python 2.7
-* git
-* wget (Ubuntu) or curl (MacOS) 
-* unzip (normally provided on both Ubuntu and MacOS)
+* `git`
+* `wget` (Ubuntu) or `curl` (MacOS) 
+* `unzip` (normally provided on both Ubuntu and MacOS)
 * 16GB RAM
 
 ## Reproducing the results from the paper ##
@@ -28,10 +28,23 @@ cd spatial_metabolomics
 git clone https://github.com/alexandrovteam/pySM
 ```
 
-Next, if you have Anaconda installation of Python, follow the [conda](#conda) installation instructions.
-Otherwise, follow the [virtualenv](#virtualenv) instructions.
+Next, if you have Anaconda installation of Python, follow the installation instructions [Setting up a virtual environment using conda](#setting-up-a-virtual-environment-using-conda). Otherwise, follow the instructions [Setting up a virtual environment using virtualenv](#setting-up-a-virtual-environment-using-virtualenv).
 
-#### virtualenv
+#### Setting up a virtual environment using `conda`
+
+Initialize and activate an 'pySM' environment with all the dependencies:
+```bash
+cd pySM
+conda env create
+source activate pySM
+```
+
+Install `pySM` package with `pip`:
+```bash
+pip install .
+```
+
+#### Setting up a virtual environment using `virtualenv`
 
 Setup and activate a new virtual environment:
 ```bash
@@ -46,28 +59,15 @@ cd pySM
 pip install . -r requirements.txt
 ```
 
-#### conda
 
-Initialize and activate `pySM` environment with all the dependencies:
-```bash
-cd pySM
-conda env create
-source activate pySM
-```
-
-Install `pySM` package with `pip`:
-```bash
-pip install .
-```
-
-### Evoking FDR-controlled molecular annotation ###
+### Evoking FDR-controlled molecular annotation
 
 This section explains how to run FDR-controlled molecular annotation against HMDB for the three MALDI-FTICR-imaging MS datasets from the coronal rat brain sections considered in the paper.
 
-#### Download data ####
+#### Download data
 Download and unzip MALDI-imaging MS datasets from the EBI MetaboLights repository as following [for Ubuntu](#for-ubuntu) or [for MacOS](#for-macos):
 
-##### for Ubuntu ###
+##### for Ubuntu
 ```bash
 cd pySM/example/datasets
 wget -O _RB_a1s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a1s1_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
@@ -78,7 +78,7 @@ unzip 'RB_a*.zip'
 cd ..
 ```
 
-##### for MacOS #####
+##### for MacOS 
 ```bash
 cd pySM/example/datasets
 curl -o _RB_a1s1_data.zip http://www.ebi.ac.uk/metabolights/MTBLS313/files/RB_a1s1_data.zip?token=11e11f8d-789d-47e4-83ed-01f4eb768cb6
