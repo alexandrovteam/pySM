@@ -177,12 +177,14 @@ def find_crossing(fdr_curve, fdr_target):
     :return: the index i or -1 if no crossing was found
     :raise ValueError: if fdr_curve is not a valid FDR curve
     """
-    if not is_fdr_curve(fdr_curve):
-        raise ValueError("Not a valid FDR curve")
+    #if not is_fdr_curve(fdr_curve):
+    #    raise ValueError("Not a valid FDR curve") #ADP - need to review is_fdr_curve criteria +noise means can start above 0
     if not 0 < fdr_target < 1:
         return -1
 
-    less_zero_indices = np.where(fdr_curve < fdr_target)[0]
+    less_zero_indices = np.where(fdr_curve <= fdr_target)[0]
+    if len(less_zero_indices) == 0:
+        return len(fdr_curve)-1
     i = less_zero_indices[-1]
     return i
 
