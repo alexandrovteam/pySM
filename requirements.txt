@@ -1,6 +1,6 @@
 numpy==1.10.4
 pandas==0.18.0
-pyImagingMSpec==0.1
+pyImagingMSpec==1.1.1
 pyimzML==1.1.1
 pyMSpec==0.1
 python-dateutil==2.5.1
