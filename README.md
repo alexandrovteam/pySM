@@ -103,14 +103,17 @@ Perform molecular annotations for each dataset at the desired FDR level of 0.1 a
 python run_example.py
 ```
 
-After all datasets have been processed a table of molecular formulas annotated for each dataset at an FDR of 0.1 will be displayed on the command line. 
-The results are displayed as comma separated values, showing the molecular formula-adduct, the values for each of the individual measures considered in the manuscript (&rho; chaos &rho; spatial, &rho; spectral) and the composite MSM score.    
+After all datasets have been processed a table of molecular formulas annotated for each dataset at an FDR of 0.1 will be displayed on the command line.  Results are displayed as comma separated values, showing the molecular formula-adduct, the values for each of the individual measures considered in the manuscript (&rho; chaos &rho; spatial, &rho; spectral) and the composite MSM score.   
+e.g.
+
 ```
 Pass formula for RBa2s2
-sum formula,adduct,p_chaos,p_spatial,p_spectral
-C24H38O4,+K,0.998696103579,0.962699782944,0.965102356221
-C24H50NO7P,+K,0.999294484149,0.791215125324,0.980649030323
-C26H42O4,+K,0.998390741419,0.954013608755,0.961014346342
+sum formula,adduct,p_chaos,p_spatial,p_spectral,msm
+C24H38O4,+K,0.998696103579,0.962699782944,0.965102356221,0.927892373696
+C24H50NO7P,+K,0.999294484149,0.791215125324,0.980649030323,0.775356932611
+C26H42O4,+K,0.998390741419,0.954013608755,0.961014346342,0.915345362936
+C26H54NO7P,+K,0.999508321881,0.778993545242,0.966106492883,0.752220689582
+C27H46O,+K,0.999367695796,0.922418016749,0.976702607076,0.900358421159
 ...
 ...
 ...
