@@ -103,7 +103,21 @@ Perform molecular annotations for each dataset at the desired FDR level of 0.1 a
 python run_example.py
 ```
 
-A list of molecular formulas annotated for each dataset  at an FDR of 0.1 will be displayed on the command line. MSM scores for every molecule in the database can found in `pySM\example\RB_x\RB_x_spatial_all_adducts_full_results.txt`
+After all datasets have been processed a table of molecular formulas annotated for each dataset at an FDR of 0.1 will be displayed on the command line. 
+The results are displayed as comma separated values, showing the molecular formula-adduct, the values for each of the individual measures considered in the manuscript (&rho; chaos &rho; spatial, &rho; spectral) and the composite MSM score.    
+```
+Pass formula for RBa2s2
+sum formula,adduct,p_chaos,p_spatial,p_spectral
+C24H38O4,+K,0.998696103579,0.962699782944,0.965102356221
+C24H50NO7P,+K,0.999294484149,0.791215125324,0.980649030323
+C26H42O4,+K,0.998390741419,0.954013608755,0.961014346342
+...
+...
+...
+```
+
+The corresponding table showing the scores for every molecule/adduct from the database (including decoys) `pySM\example\RB_x\RB_x_spatial_all_adducts_full_results.txt`
+
 
 
 # General usage #
