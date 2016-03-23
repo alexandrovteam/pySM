@@ -39,12 +39,12 @@ for json_filename in json_filenames:
     pass_sf = fdr.decoy_adducts_get_pass_list(fdr_target,n_reps,col='msm')
     (measure_value_score, iso_correlation_score,iso_ratio_score, moc_pass) = results_tools.load_results(results_fname)
     print 'Pass formula for {}'.format(config['name'])
-    print "{},{},{},{},{}".format('sum formula','adduct','p_chaos','p_spatial','p_spectral','msm')
+    print "{},{},{},{},{},{}".format('sum formula','adduct','p_chaos','p_spatial','p_spectral','msm')
     for adduct in pass_sf:
         for sf in pass_sf[adduct]:
             moc = measure_value_score[sf][adduct]
             spat = iso_correlation_score[sf][adduct]
             spec = iso_ratio_score[sf][adduct]
             msm = moc*spat*spec
-            print "{},{},{},{},{}".format(sf,adduct,moc,spat,spec,msm)
+            print "{},{},{},{},{},{}".format(sf,adduct,moc,spat,spec,msm)
     print [[config['name'], a, pass_sf[a]] for a in pass_sf]
