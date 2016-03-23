@@ -276,7 +276,7 @@ def output_results(config, measure_value_score, iso_correlation_score, iso_ratio
         os.makedirs(output_dir)
     filename_out = generate_output_filename(config,adducts,fname=fname)
     with open(filename_out, 'w') as f_out:
-        f_out.write('sf,adduct,mz,moc,spat,spec,pass\n'.format())
+        f_out.write('sf,adduct,mz,moc,spat,spec,msm\n'.format())
         for sum_formula in sum_formulae:
             for adduct in adducts:
                 if adduct not in mz_list[sum_formula]:
@@ -286,6 +286,7 @@ def output_results(config, measure_value_score, iso_correlation_score, iso_ratio
                     iso_correlation_score[sum_formula][adduct],
                     iso_ratio_score[sum_formula][adduct])
                 moc_pass = check_pass((measure_tol, iso_corr_tol, iso_ratio_tol), p_vals)
+                msm = measure_value_score[sum_formula][adduct]*iso_correlation_score[sum_formula][adduct]*iso_ratio_score[sum_formula][adduct]
                 str_out = '{},{},{},{},{},{},{}\n'.format(
                     sum_formula,
                     adduct,
@@ -293,7 +294,7 @@ def output_results(config, measure_value_score, iso_correlation_score, iso_ratio
                     measure_value_score[sum_formula][adduct],
                     iso_correlation_score[sum_formula][adduct],
                     iso_ratio_score[sum_formula][adduct],
-                    moc_pass)
+                    msm)
                 str_out.replace('[',"\"")
                 str_out.replace(']',"\"")
                 f_out.write(str_out)
