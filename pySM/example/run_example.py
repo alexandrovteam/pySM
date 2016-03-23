@@ -47,4 +47,3 @@ for json_filename in json_filenames:
             spec = iso_ratio_score[sf][adduct]
             msm = moc*spat*spec
             print "{},{},{},{},{},{}".format(sf,adduct,moc,spat,spec,msm)
-    print [[config['name'], a, pass_sf[a]] for a in pass_sf]
