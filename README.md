@@ -103,7 +103,7 @@ Perform molecular annotations for each dataset at the desired FDR level of 0.1 a
 python run_example.py
 ```
 
-A list of molecular formula annotated for each dataset  at an FDR of 0.1 will be displayed on the command line. MSM scores for every molecule in the database can found in `pySM\example\RB_x\RB_x_spatial_all_adducts_full_results.txt`
+A list of molecular formulas annotated for each dataset  at an FDR of 0.1 will be displayed on the command line. MSM scores for every molecule in the database can found in `pySM\example\RB_x\RB_x_spatial_all_adducts_full_results.txt`
 
 
 ## General usage ##
