@@ -98,7 +98,7 @@ git clone https://github.com/alexandrovteam/precomputed_isotope_patterns
 
 #### Perform annotation ####
 
-Perform molecular annotations for each dataset at the desired FDR level of 0.1 as follows (N.B.: the approximate time needed is 10 hours for the RB_a1s1 dataset, and 5 hours for each of the RB_a2s1 and RB_a2s2 datasets):
+Perform molecular annotations for each dataset at the desired FDR level of 0.1 as follows (N.B.: run time is approximately 5 hours for the RB_a1s1 dataset, and 1 hour for each of the RB_a2s1 and RB_a2s2 datasets on a MacBook Pro 3GHz i7 with 16GB DDR3):
 ```bash
 python run_example.py
 ```
