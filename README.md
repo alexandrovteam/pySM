@@ -59,6 +59,8 @@ cd pySM
 pip install . -r requirements.txt
 ```
 
+#### Uninstallation ####
+If a virtual environment is used then `pySM` can be removed simply by deleting the folder `spatial_metabolomics`. If installed system-wide using pip, then it can be removed with: ``` pip uninstall pySM ```
 
 ### Evoking FDR-controlled molecular annotation
 
