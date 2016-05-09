@@ -67,7 +67,7 @@ def read_hmdb_compounds(filename):
                     sum_formulae[sf]['mw'] = mw
     return sum_formulae
 
-def read_generic_csv(filename,idcol=0,namecol=1,mwcol=2,sfcol=3,header=1,verbose=False):
+def read_generic_csv(filename,idcol=0,namecol=1,mwcol=2,sfcol=3,header=1,verbose=False, sep=','):
     import csv
     import re
     # some things lead to sf that cannot be parsed (mostly optional groups)
@@ -75,7 +75,7 @@ def read_generic_csv(filename,idcol=0,namecol=1,mwcol=2,sfcol=3,header=1,verbose
     bad_groups = re.compile("(x)|(\,)|(\.n)|(\)n)|(R$)|(?:(R)[A-Z0-9])|(?:(X)[A-Z0-9])|(X$)")
     sum_formulae = {}
     with open(filename,'rU') as filein_db:
-        data_in = csv.reader(filein_db,delimiter=',')
+        data_in = csv.reader(filein_db,delimiter=sep)
         # skip the headers
         for n in range(0,header):
             next(data_in, None)
