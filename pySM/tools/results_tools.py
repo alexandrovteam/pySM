@@ -100,16 +100,24 @@ def check_pass(pass_thresh,pass_val):
 def plot_images(ion_datacube,iso_spect,iso_max,q_val=99,c_map='hot'):
     import numpy as np
     import matplotlib.pyplot as plt
-    from pyIMS.image_measures import level_sets_measure, isotope_image_correlation, isotope_pattern_match
-    measure_value_score = level_sets_measure.measure_of_chaos(
-                    ion_datacube.xic_to_image(0), 30, interp="median")[0]
+    from pyImagingMSpec.image_measures import measure_of_chaos, isotope_image_correlation, isotope_pattern_match
+    from pyImagingMSpec import smoothing as im_smoothing
+    for ii in range(0, iso_max):
+        # hot-spot removal
+        xic = ion_datacube.xic[ii]
+        im_smoothing.hot_spot_removal(xic, q_val)  # updated in place
+        im = ion_datacube.xic_to_image(ii)
+        #im = im_smoothing.median(im, size=3)
+        ion_datacube.xic[ii] = ion_datacube.image_to_xic(im)
+    measure_value_score = measure_of_chaos(
+            ion_datacube.xic_to_image(0), 30)
     # 3. Score correlation with monoiso
     if len(iso_spect[1]) > 1:
-        iso_correlation_score = isotope_image_correlation.isotope_image_correlation(
+        iso_correlation_score = isotope_image_correlation(
             ion_datacube.xic, weights=iso_spect[1][1:])
     else:  # only one isotope peak, so correlation doesn't make sense
         iso_correlation_score = 1
-    iso_ratio_score = isotope_pattern_match.isotope_pattern_match(ion_datacube.xic,iso_spect[1])
+    iso_ratio_score = isotope_pattern_match(ion_datacube.xic,iso_spect[1])
     msm_score = measure_value_score*iso_correlation_score*iso_ratio_score
 
     ax = [   plt.subplot2grid((2, 4), (0, 0)),
@@ -123,15 +131,6 @@ def plot_images(ion_datacube,iso_spect,iso_max,q_val=99,c_map='hot'):
     # plot images
     for ii in range(0,iso_max):
         im = ion_datacube.xic_to_image(ii)
-        # hot-spot removal
-        notnull=im>0 
-        if np.sum(notnull==False)==np.shape(im)[0]*np.shape(im)[1]:
-            im=im
-        else:
-            im_q = np.percentile(im[notnull],q_val)
-            im_rep =  im>im_q       
-            im[im_rep] = im_q 
-
         ax[ii].imshow(im,cmap=c_map,interpolation='nearest')
         ax[ii].set_title('m/z: {:3.4f}'.format(iso_spect[0][ii]))
         ax[ii].set_xticks([],[])
@@ -143,7 +142,7 @@ def plot_images(ion_datacube,iso_spect,iso_max,q_val=99,c_map='hot'):
     iso_spect[1] = iso_spect[1]/np.linalg.norm(iso_spect[1])
 
     markerline, stemlines, baseline = ax[4].stem(iso_spect[0][0:iso_max],iso_spect[1][0:iso_max],'g')
-    plt.title("moc: {:3.4f} spat: {:3.2f} spec: {:3.2f} msm: {:3.3f}".format(measure_value_score,iso_correlation_score,iso_ratio_score,msm_score))
+    plt.title("moc: {:3.5f} spat: {:3.5f} spec: {:3.5f} msm: {:3.5f}".format(measure_value_score,iso_correlation_score,iso_ratio_score,msm_score))
     plt.setp(stemlines, linewidth=2, color='g')     # set stems  colors
     plt.setp(markerline, 'markerfacecolor', 'g','markeredgecolor','g')    # make points 
 
@@ -159,3 +158,16 @@ def plot_images(ion_datacube,iso_spect,iso_max,q_val=99,c_map='hot'):
     proxies.append(h)
     ax[4].legend(proxies,('predicted pattern','data pattern'), numpoints=1)
     return ax
+
+def sf_to_id(sum_formulae,sf, db_prefix="", min_digits=-1):
+    """
+    Get all database ids that correspond to a sum formula
+    :param config:
+    :param sf:
+    :return:
+    """
+    if min_digits > 0:
+        id_str = ["{}{}".format(db_prefix, "{}".format(id).zfill(min_digits)) for id in sum_formulae[sf]['db_id']]
+    else:
+        id_str =["{}{}".format(db_prefix, id) for id in  sum_formulae[sf]['db_id']]
+    return id_str
