@@ -1,6 +1,5 @@
 import collections
 from collections import defaultdict
-
 import numpy as np
 import pandas as pd
 
@@ -204,10 +203,13 @@ class decoy_adducts():
             self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
         self.score_data_df["msm"] = score_msm(self.score_data_df)
         self.score_data_df.sort_values(by="sf", inplace=True)
+        self._count_formulas_per_adduct()
+
+    def _count_formulas_per_adduct(self):
         # store some data info
         self.sf_l = {}
         self.n_sf = {}
-        for a in target_adducts:
+        for a in self.target_adducts:
             self.sf_l[a] = np.unique(self.score_data_df.ix[self.score_data_df['adduct'] == a]["sf"])
             self.n_sf[a] = len(self.sf_l[a])
 
@@ -263,6 +265,7 @@ class decoy_adducts():
             col_vector_decoy = col_vector_decoy.reshape((self.n_sf[adduct], data_reps))
         except ValueError as e:
             print len(col_vector_decoy) , len(self.sf_l[adduct]), np.shape(self.score_data_df), adduct, self.n_sf[adduct], data_reps
+            raise
         self.shuf(col_vector_decoy)
         fdr_curves = []
         target_hits = []
