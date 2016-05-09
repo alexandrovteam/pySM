@@ -18,7 +18,7 @@ def get_variables(json_filename):
     config = json.loads(open(json_filename).read())
     # maintain compatibility with previous versions
     # defaults are be how everything *should* be -> update makes sure that whatever is loaded conforms to this
-    compatability_defaults = {'image_generation':{'smooth': True, 'smooth_params':{} } }
+    compatability_defaults = {'image_generation':{'smooth': "medfilt", 'smooth_params':{"size": 3} } }
     config = d_update(compatability_defaults,config)
     return compatability_defaults
 
@@ -166,7 +166,7 @@ def apply_image_processing(config, ion_datacube):
             smoothing.hot_spot_removal(xic, q) #updated in place
     smooth_method = config['image_generation']['smooth']
     smooth_params = config['image_generation']['smooth_params']
-    if smooth_method != '':
+    if not smooth_method == '':
         for ii in range(ion_datacube.n_im):
             im = ion_datacube.xic_to_image(ii)
             #todo: for method in smoothing_methods:
@@ -514,3 +514,10 @@ def frequency_filter(JSON_config_file):
     #mzs,counts,idx_list = gradient(np.asarray(spec_axis),np.asarray(mean_spec),weighted_bins=2)
     ppm_value_score = run_frequency_mass_search(config,  IMS_dataset, sum_formulae, adducts, mz_list)
     output_results_frequencyFilter(config, ppm_value_score, sum_formulae, adducts, mz_list,fname='frequencyFilter_all_adducts')
+
+def get_target_decoy_adducts(json_config_file):
+    config = get_variables(json_config_file)
+    all_adducts = [c['adduct'] for c in config['isotope_generation']['adducts']]
+    target_adducts = [c['adduct'] for c in config['fdr']['pl_adducts']]
+    decoy_adducts = [c for c in all_adducts if not c in target_adducts]
+    return target_adducts, decoy_adducts
