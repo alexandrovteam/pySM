@@ -198,9 +198,13 @@ class decoy_adducts():
         self.target_adducts = target_adducts
         self.decoy_adducts = decoy_adducts
         self.shuf = shuf or _shuffle_rows
-        # read in raw score file and calculate metabolite signal match
-        with open(fname) as f_in:
-            self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
+        if type(fname) == str:
+            # read in raw score file and calculate metabolite signal match
+            with open(fname) as f_in:
+                self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
+        else:
+            # accept ready-to-use dataframes as well as filenames
+            self.score_data_df = fname
         self.score_data_df["msm"] = score_msm(self.score_data_df)
         self.score_data_df.sort_values(by="sf", inplace=True)
         self._count_formulas_per_adduct()
