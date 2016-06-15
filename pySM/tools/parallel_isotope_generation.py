@@ -2,6 +2,7 @@ __author__ = 'palmer'
 from pySM import spatial_metabolomics
 from pySM.parse_databases import parse_databases
 from pyMSpec.pyisocalc import pyisocalc
+from cpyMSpec.legacy_interface import complete_isodist
 import numpy as np
 import os
 from joblib import Parallel, delayed
@@ -24,7 +25,7 @@ def calculate_isotope_pattern( sum_formula, adduct,isocalc_sig, isocalc_resoluti
     if verbose:
         print sf
     try:
-        isotope_ms = pyisocalc.complete_isodist(sf,sigma=isocalc_sig,charge=charge, pts_per_mz=isocalc_resolution)
+        isotope_ms = complete_isodist(sf,sigma=isocalc_sig,charge=charge, pts_per_mz=isocalc_resolution)
     except MemoryError as e:
         print sf, str(e)
         return ["foo",[]]
@@ -52,7 +53,7 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
         mz_list[row[0]][adduct]=row[1]
     return mz_list
 
-def generate_isotope_pattern(sf_list,adduct, config):
+def generate_isotope_pattern(sum_formulae, adduct, config, db_filename):
     # Extract variables from config dict
     db_dump_folder = config['file_inputs']['database_load_folder']
     isocalc_sig = float(config['isotope_generation']['isocalc_sig'])
@@ -72,12 +73,15 @@ def generate_isotope_pattern(sf_list,adduct, config):
 
 
 if __name__== '__main__':
-    json_filename = "/home/palmer/Documents/tmp_data/parallel_chebi/RBa2s1.json"
+    json_filename = "/home/palmer/Documents/tmp_data/spheroid_config_swisslipids/12hour_1_322_centroid.json"
     config = spatial_metabolomics.get_variables(json_filename)
-    db_filename = config['file_inputs']['database_file']
-    sum_formulae = parse_databases.read_generic_csv(db_filename)
     adducts = [a['adduct'] for a in config['isotope_generation']['adducts']]
-    if '' in sum_formulae:
-        del sum_formulae['']
-    for a in adducts:
-        generate_isotope_pattern(sum_formulae,a,config)
+    db_filenames = config['file_inputs']['database_file']
+    if isinstance(db_filenames, basestring):
+        db_filenames = [db_filenames,]
+    for db_filename in db_filenames:
+        sum_formulae = parse_databases.read_generic_csv(db_filename,header=1,idcol=0,namecol=1,sfcol=2, sep='\t')
+        if '' in sum_formulae:
+            del sum_formulae['']
+        for a in adducts:
+            generate_isotope_pattern(sum_formulae,a,config, db_filename)
