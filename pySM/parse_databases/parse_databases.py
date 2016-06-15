@@ -67,13 +67,12 @@ def read_hmdb_compounds(filename):
                     sum_formulae[sf]['mw'] = mw
     return sum_formulae
 
-def read_generic_csv(filename,idcol=0,namecol=1,mwcol=2,sfcol=3,header=1,verbose=False, sep=','):
+def read_generic_csv(filename,idcol=0,namecol=1,mwcol=2,sfcol=3,header=1,verbose=False, sep=',', sum_formulae={}):
     import csv
     import re
     # some things lead to sf that cannot be parsed (mostly optional groups)
     # currently I just exclude these - a better database would provide combinations
     bad_groups = re.compile("(x)|(\,)|(\.n)|(\)n)|(R$)|(?:(R)[A-Z0-9])|(?:(X)[A-Z0-9])|(X$)")
-    sum_formulae = {}
     with open(filename,'rU') as filein_db:
         data_in = csv.reader(filein_db,delimiter=sep)
         # skip the headers
@@ -83,11 +82,11 @@ def read_generic_csv(filename,idcol=0,namecol=1,mwcol=2,sfcol=3,header=1,verbose
         for line in data_in:
             if line == []: #catch empty line(s)
                 continue
-            db_id = line[idcol]
-            sf = line[sfcol]
+            db_id = line[idcol].strip()
+            sf = line[sfcol].strip()
             sf=sf.replace(" ","")
-            name = line[namecol]
-            mw = line[mwcol]
+            name = line[namecol].strip()
+            mw = line[mwcol].strip()
             if mw=='':
                 mw = '0'
             if '+' in sf or '-' in sf:

@@ -20,6 +20,9 @@ def get_variables(json_filename):
     # defaults are be how everything *should* be -> update makes sure that whatever is loaded conforms to this
     compatability_defaults = {'image_generation':{'smooth': "medfilt", 'smooth_params':{"size": 3} } }
     config = d_update(compatability_defaults,config)
+    # old style config provided a single database as a string, now we accept a list of databases
+    if isinstance(config['file_inputs']['database_file'], basestring):
+        config['file_inputs']['database_file'] = [config['file_inputs']['database_file'],]
     return compatability_defaults
 
 
@@ -58,16 +61,18 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
             #isotope_ms = pyisocalc.isodist(sf, plot=False, sigma=isocalc_sig, charges=charge,
             #                           resolution=isocalc_resolution, do_centroid=isocalc_do_centroid)
         except MemoryError as e:
-            print sf, str(e)
+            #todo: print -> logging.debug
+            print "Memory error: {}{}".format(sf, str(e))
             continue
         except KeyError as e:
-            print str(e)
+            print "KeyError: {}".format(str(e))
             continue
 
         if not sum_formula in mz_list:
             mz_list[sum_formula] = {}
         mz_list[sum_formula][adduct] = isotope_ms.get_spectrum(source='centroids')
     return mz_list
+
 
 def save_pattern(load_file, db_dump_folder, mz_list_tmp):
     import pickle
@@ -76,11 +81,13 @@ def save_pattern(load_file, db_dump_folder, mz_list_tmp):
             os.makedirs(db_dump_folder)
         pickle.dump(mz_list_tmp, open(load_file, 'w'))
 
+
 def generate_isotope_patterns(config,verbose=True):
+    #todo: verbose -> logging.debug
     from pySM.parse_databases import parse_databases
-    import pickle
+    from pySM.spatial_metabolomics import get_save_isotope_patterns
     # Extract variables from config dict
-    db_filename = config['file_inputs']['database_file']
+    db_filenames = config['file_inputs']['database_file']
     db_dump_folder = config['file_inputs']['database_load_folder']
     isocalc_sig = float(config['isotope_generation']['isocalc_sig'])
     isocalc_resolution = float(config['isotope_generation']['isocalc_resolution'])
@@ -90,54 +97,70 @@ def generate_isotope_patterns(config,verbose=True):
                                config['isotope_generation']['charge'][0][
                                    'n_charges']))  # currently only supports first charge!!
     adducts = [a['adduct'] for a in config['isotope_generation']['adducts']]
-
-    # Read in molecules
-    sum_formulae = parse_databases.read_generic_csv(db_filename)
-    if '' in sum_formulae:
-        if verbose:
-            print 'empty sf removed from list'
-        del sum_formulae['']
-    # Check if already genrated and load if possible, otherwise calculate fresh   
-    db_name = os.path.splitext(os.path.basename(db_filename))[0]
+    # Get master list of sum formulae
+    sum_formulae = {}
+    for db_filename in db_filenames:
+        sum_formulae = parse_databases.read_generic_csv(db_filename,header=0,idcol=0,namecol=1,sfcol=2, sep='\t', sum_formulae=sum_formulae)
+        if '' in sum_formulae:
+            if verbose:
+                print 'empty sf removed from list'
+            del sum_formulae['']
+    # Get isotope patterns for all sum_formulae
     mz_list = {}
-    for adduct in adducts:
-        load_file = '{}/{}_{}_{}_{}.dbasedump'.format(db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution)
-        if os.path.isfile(load_file):
-            if verbose:
-                print  "{} -> loading".format(load_file)
-            try:
-                mz_list_tmp = pickle.load(open(load_file, 'r'))
-            except ValueError as e:
-                if verbose:
-                    print str(e)
-                    print "{} -> generating".format(load_file)
-                mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
-                                                     isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
-                save_pattern(load_file, db_dump_folder, mz_list_tmp)
-        else:
-            if verbose:
-                print "{} -> generating".format(load_file)
-            mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
-                                                     isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
-            save_pattern(load_file, db_dump_folder, mz_list_tmp)
-        # add patterns to total list
-        for sum_formula in sum_formulae:
-            if sum_formula not in mz_list_tmp:# could be missing if [M-a] would have negative atoms
-                continue
-            if sum_formula not in mz_list:
-                mz_list[sum_formula]={}
-            ## this limit of 4 is hardcoded to reduce the number of calculations
-            n = np.min([4,len(mz_list_tmp[sum_formula][adduct][0])])
-            mz_list[sum_formula][adduct] = [mz_list_tmp[sum_formula][adduct][0][0:n],mz_list_tmp[sum_formula][adduct][1][0:n]]
-        rm_list = []
-        for sum_formula in sum_formulae:
-            if sum_formula not in mz_list:
-                rm_list.append(sum_formula)
-        for sum_formula in rm_list:
-            sum_formulae.pop(sum_formula,None)
+    for db_filename in db_filenames:
+        db_name = os.path.splitext(os.path.basename(db_filename))[0]
+        for adduct in adducts:
+            _mz_list = get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution, charge,verbose)
+            # add patterns to total list
+            for sum_formula in sum_formulae:
+                if sum_formula not in _mz_list:# could be missing if [M-a] would have negative atoms
+                    continue
+                if sum_formula not in mz_list:
+                    mz_list[sum_formula]={}
+                ## this limit of 4 is hardcoded to reduce the number of calculations todo: add to config file
+                n = np.min([4,len(_mz_list[sum_formula][adduct][0])])
+                sort_idx = np.argsort(_mz_list[sum_formula][adduct][1])[-n:]
+                mz_list[sum_formula][adduct] = [_mz_list[sum_formula][adduct][0][sort_idx],_mz_list[sum_formula][adduct][1][sort_idx]]
+    # Clean up
+    # poorly formatted formulae may not recieve an isotope pattern
+    rm_list = []
+    for sum_formula in sum_formulae:
+        if sum_formula not in mz_list:
+              rm_list.append(sum_formula)
+    if verbose:
+        print "{} formula to remove".format(len(rm_list))
+    for sum_formula in rm_list:
+        sum_formulae.pop(sum_formula,None)
     if verbose:
         print  'all isotope patterns generated and loaded'
     return sum_formulae, adducts, mz_list
+
+
+def get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution, charge,verbose):
+            import pickle
+            from pySM.parse_databases import parse_databases
+            # Check if already generated and load if possible, otherwise calculate fresh
+            sum_formulae = parse_databases.read_generic_csv(db_filename,header=0,idcol=0,namecol=1,sfcol=2, sep='\t')
+            load_file = '{}/{}_{}_{}_{}.dbasedump'.format(db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution)
+            if os.path.isfile(load_file):
+                if verbose:
+                    print  "{} -> loading".format(load_file)
+                try:
+                    mz_list_tmp = pickle.load(open(load_file, 'r'))
+                except ValueError as e:
+                    if verbose:
+                        print str(e)
+                        print "{} -> generating".format(load_file)
+                    mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
+                                                         isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
+                    save_pattern(load_file, db_dump_folder, mz_list_tmp)
+            else:
+                if verbose:
+                    print "{} -> generating".format(load_file)
+                mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
+                                                         isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
+                save_pattern(load_file, db_dump_folder, mz_list_tmp)
+            return mz_list_tmp
 
 
 def hot_spot_removal(xics, q):
@@ -496,7 +519,7 @@ def exact_mass(JSON_config_file):
     config = get_variables(JSON_config_file)
     sum_formulae, adducts, mz_list = generate_isotope_patterns(config)
     IMS_dataset = load_data(config)
-    spec_axis,mean_spec =IMS_dataset.generate_summary_spectrum(summary_type='mean',ppm=config['image_generation']['ppm']/2)
+    spec_axis,mean_spec =IMS_dataset.generate_summary_spectrum(summary_type='mean',ppm=config['image_generation']['ppm']/2.)
     from pyMSpec.centroid_detection import gradient
     import numpy as np
     mzs,counts,idx_list = gradient(np.asarray(spec_axis),np.asarray(mean_spec),weighted_bins=2)
