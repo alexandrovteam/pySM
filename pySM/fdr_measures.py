@@ -154,7 +154,7 @@ def is_fdr_curve(fdr_curve):
     """
     if len(fdr_curve) < 2:
         raise ValueError("FDR length < 2")
-    if fdr_curve[0] != 0:
+    if fdr_curve[0] != 0.:
         raise ValueError("FDR start not 0")
     if not np.allclose(fdr_curve[-1], 1.0):
         raise ValueError("FDR end not 1")
