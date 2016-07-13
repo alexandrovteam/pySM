@@ -18,7 +18,7 @@ def get_variables(json_filename):
     config = json.loads(open(json_filename).read())
     # maintain compatibility with previous versions
     # defaults are be how everything *should* be -> update makes sure that whatever is loaded conforms to this
-    compatability_defaults = {'image_generation':{'smooth': "medfilt", 'smooth_params':{"size": 3} } }
+    compatability_defaults = {'image_generation':{'smooth': "medfilt", 'smooth_params':{"size": 3}}, "isotope_generation": {"instrument":"Instrument", 'resolving_power':"140000", "at_mz":"200"} ,}
     config = d_update(compatability_defaults,config)
     # old style config provided a single database as a string, now we accept a list of databases
     if isinstance(config['file_inputs']['database_file'], basestring):
@@ -27,7 +27,7 @@ def get_variables(json_filename):
 
 
 ### We simulate a mass spectrum for each sum formula/adduct combination. This generates a set of isotope patterns (see http://www.mi.fu-berlin.de/wiki/pub/ABI/QuantProtP4/isotope-distribution.pdf) which can provide additional informaiton on the molecule detected. This gives us a list of m/z centres for the molecule
-def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocalc_resolution=200000.,
+def calculate_isotope_patterns(sum_formulae, adduct='', instrument=[], isocalc_sig=0.01, isocalc_resolution=200000.,
                                    isocalc_do_centroid=True, charge=1,verbose=True):
     from pyMSpec.pyisocalc import pyisocalc
     ### Generate a mz list of peak centroids for each sum formula with the given adduct
@@ -37,6 +37,7 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
             if verbose:
                 print n/float(len(sum_formulae)), sum_formula, adduct
             try:
+                isotope_ms = instrument.get_isotope_pattern(sum_formula+adduct, charge=charge)
                 sf = pyisocalc.parseSumFormula("{}{}".format(sum_formula,adduct))
             except pyMSpec.pyisocalc.canopy.sum_formula.ParseError as e:
                 print "error->", str(e), sum_formula, adduct
@@ -55,9 +56,8 @@ def calculate_isotope_patterns(sum_formulae, adduct='', isocalc_sig=0.01, isocal
         except pyisocalc.InvalidFormulaError as e:
             print str(e)
             continue
-
-        try:
-            isotope_ms = pyisocalc.complete_isodist(sf,sigma=isocalc_sig,charge=charge, pts_per_mz=isocalc_resolution)
+        #try:
+            #isotope_ms = pyisocalc.complete_isodist(sf,sigma=isocalc_sig,charge=charge, pts_per_mz=isocalc_resolution)
             #isotope_ms = pyisocalc.isodist(sf, plot=False, sigma=isocalc_sig, charges=charge,
             #                           resolution=isocalc_resolution, do_centroid=isocalc_do_centroid)
         except MemoryError as e:
@@ -82,21 +82,30 @@ def save_pattern(load_file, db_dump_folder, mz_list_tmp):
         pickle.dump(mz_list_tmp, open(load_file, 'w'))
 
 
+def get_instrument(instrument_class_name, resolving_power, at_mz):
+    from pyMSpec import instrument
+    m = getattr(instrument, instrument_class_name)
+    return m(float(resolving_power), float(at_mz))
+
 def generate_isotope_patterns(config,verbose=True):
     #todo: verbose -> logging.debug
     from pySM.parse_databases import parse_databases
     from pySM.spatial_metabolomics import get_save_isotope_patterns
+    from pyMSpec import instrument
     # Extract variables from config dict
     db_filenames = config['file_inputs']['database_file']
     db_dump_folder = config['file_inputs']['database_load_folder']
-    isocalc_sig = float(config['isotope_generation']['isocalc_sig'])
-    isocalc_resolution = float(config['isotope_generation']['isocalc_resolution'])
+    #isocalc_sig = float(config['isotope_generation']['isocalc_sig'])
+    #isocalc_resolution = float(config['isotope_generation']['isocalc_resolution'])
     if len(config['isotope_generation']['charge']) > 1:
         print 'Warning: only first charge state currently accepted'
     charge = int('{}{}'.format(config['isotope_generation']['charge'][0]['polarity'],
                                config['isotope_generation']['charge'][0][
                                    'n_charges']))  # currently only supports first charge!!
-    adducts = [a['adduct'] for a in config['isotope_generation']['adducts']]
+    adducts = set([a['adduct'] for a in config['isotope_generation']['adducts']])
+    instrument = get_instrument(config["isotope_generation"]["instrument"], config["isotope_generation"]["resolving_power"], config["isotope_generation"]["at_mz"])
+    isocalc_sig = np.round(instrument.sigma_at_mz(200), decimals=4)
+    isocalc_resolution = instrument.points_per_mz(isocalc_sig)
     # Get master list of sum formulae
     sum_formulae = {}
     for db_filename in db_filenames:
@@ -110,7 +119,7 @@ def generate_isotope_patterns(config,verbose=True):
     for db_filename in db_filenames:
         db_name = os.path.splitext(os.path.basename(db_filename))[0]
         for adduct in adducts:
-            _mz_list = get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution, charge,verbose)
+            _mz_list = get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution, charge, verbose, instrument)
             # add patterns to total list
             for sum_formula in sum_formulae:
                 if sum_formula not in _mz_list:# could be missing if [M-a] would have negative atoms
@@ -119,7 +128,7 @@ def generate_isotope_patterns(config,verbose=True):
                     mz_list[sum_formula]={}
                 ## this limit of 4 is hardcoded to reduce the number of calculations todo: add to config file
                 n = np.min([4,len(_mz_list[sum_formula][adduct][0])])
-                sort_idx = np.argsort(_mz_list[sum_formula][adduct][1])[-n:]
+                sort_idx = np.argsort(_mz_list[sum_formula][adduct][1])[-n:][-1::-1]
                 mz_list[sum_formula][adduct] = [_mz_list[sum_formula][adduct][0][sort_idx],_mz_list[sum_formula][adduct][1][sort_idx]]
     # Clean up
     # poorly formatted formulae may not recieve an isotope pattern
@@ -136,12 +145,12 @@ def generate_isotope_patterns(config,verbose=True):
     return sum_formulae, adducts, mz_list
 
 
-def get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution, charge,verbose):
+def get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution, charge, verbose, instrument):
             import pickle
             from pySM.parse_databases import parse_databases
             # Check if already generated and load if possible, otherwise calculate fresh
             sum_formulae = parse_databases.read_generic_csv(db_filename,header=0,idcol=0,namecol=1,sfcol=2, sep='\t')
-            load_file = '{}/{}_{}_{}_{}.dbasedump'.format(db_dump_folder, db_name, adduct, isocalc_sig, isocalc_resolution)
+            load_file = '{}/{}_{}_{}_{}_{}.dbasedump'.format(db_dump_folder, db_name, instrument.__class__.__name__, adduct, isocalc_sig, isocalc_resolution)
             if os.path.isfile(load_file):
                 if verbose:
                     print  "{} -> loading".format(load_file)
@@ -151,14 +160,14 @@ def get_save_isotope_patterns(db_filename, db_dump_folder, db_name, adduct, isoc
                     if verbose:
                         print str(e)
                         print "{} -> generating".format(load_file)
-                    mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
+                    mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, instrument=instrument, isocalc_sig=isocalc_sig,
                                                          isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
                     save_pattern(load_file, db_dump_folder, mz_list_tmp)
             else:
                 if verbose:
                     print "{} -> generating".format(load_file)
                 mz_list_tmp = calculate_isotope_patterns(sum_formulae, adduct=adduct, isocalc_sig=isocalc_sig,
-                                                         isocalc_resolution=isocalc_resolution, charge=charge, verbose=False)
+                                                         isocalc_resolution=isocalc_resolution, charge=charge, verbose=False, instrument=instrument)
                 save_pattern(load_file, db_dump_folder, mz_list_tmp)
             return mz_list_tmp
 
@@ -235,8 +244,8 @@ def run_search(config, IMS_dataset, sum_formulae, adducts, mz_list):
                     iso_ratio_score[sum_formula] = {}
             try:
                 # 1. Generate ion images
-                ion_datacube = IMS_dataset.get_ion_image(mz_list[sum_formula][adduct][0],
-                                                         ppm)  # for each spectrum, sum the intensity of all peaks within tol of mz_list
+                mzs = mz_list[sum_formula][adduct][0] #+ 5*mz_list[sum_formula][adduct][0]*1e-6
+                ion_datacube = IMS_dataset.get_ion_image(mzs, ppm)  # for each spectrum, sum the intensity of all peaks within tol of mz_list
                 if do_preprocessing:
                     apply_image_processing(config,ion_datacube) #currently just supports hot-spot removal
                 # 2. Spatial Chaos
@@ -544,3 +553,15 @@ def get_target_decoy_adducts(json_config_file):
     target_adducts = [c['adduct'] for c in config['fdr']['pl_adducts']]
     decoy_adducts = [c for c in all_adducts if not c in target_adducts]
     return target_adducts, decoy_adducts
+
+def run_batch_same_database(json_list):
+    #assume all json use the same database
+    config = get_variables(json_list[0])
+    sum_formulae, adducts, mz_list = generate_isotope_patterns(config)
+    for json_filename in json_list:
+        config = get_variables(json_filename)
+        if 'fdr' in config:
+            mz_list = fdr_selection(mz_list,[str(a["adduct"]) for a in config['fdr']["pl_adducts"]], config['fdr']['n_im'])
+        IMS_dataset = load_data(config)
+        measure_value_score, iso_correlation_score, iso_ratio_score = run_search(config, IMS_dataset, sum_formulae, adducts,mz_list)
+        output_results(config, measure_value_score, iso_correlation_score, iso_ratio_score, sum_formulae, adducts, mz_list,fname='spatial_all_adducts')
