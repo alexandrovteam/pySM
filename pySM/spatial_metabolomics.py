@@ -494,17 +494,18 @@ def run_frequency_mass_search(config, IMS_dataset, sum_formulae, adducts, mz_lis
     return freq_value_score
 
 
-def fdr_selection(mz_list,pl_adducts, n_im):
+def fdr_selection(mz_list, pl_adducts, n_im):
     # produces a random subset of the adducts loaded in mz_list to actually calculate with
     pl_adducts = set(pl_adducts)
     for sf in mz_list:
         adduct_list = set(mz_list[sf].keys()) - pl_adducts # can be different for each molecule (e.g if adduct loss would be imposisble)
-        rep=False
-        if len(adduct_list)<n_im:
-            rep=True
-        keep_adducts = set(np.random.choice(list(adduct_list),n_im,replace=rep))|pl_adducts
-        for a in adduct_list- keep_adducts:
-            del mz_list[sf][a]
+        if not n_im:
+           pass
+        else:
+            rep=len(adduct_list)<n_im # sample with replacement if number of possible adducts greater than available
+            keep_adducts = set(np.random.choice(list(adduct_list),n_im,replace=rep))|pl_adducts
+            for a in adduct_list - keep_adducts:
+                del mz_list[sf][a]
     return mz_list
 
 
