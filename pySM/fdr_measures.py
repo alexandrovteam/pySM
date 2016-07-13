@@ -8,15 +8,25 @@ __author__ = 'palmer'
 def get_adducts(json_filename):
     import json
     config = json.loads(open(json_filename).read())
-    target_adducts = [a['adduct'] for a in config['fdr']['pl_adducts']]
-    decoy_adducts = list(set([a['adduct'] for a in config['isotope_generation']['adducts']])-set(target_adducts))
-    return target_adducts, decoy_adducts
+    target_adducts = set([a['adduct'] for a in config['fdr']['pl_adducts']])
+    decoy_adducts = set([a['adduct'] for a in config['isotope_generation']['adducts']])-set(target_adducts)
+    return list(target_adducts), list(decoy_adducts)
 
 
 def calc_fdr_df(target_df, decoy_df, col='mult', ascending=False):
     # possible backward-incompatibility: calc_fdr_df previously returned the last argument as a series, not as an array
     return calc_fdr_arr(target_df[col], decoy_df[col], ascending=ascending)
 
+
+def force_monotonic(y):
+        y_monotonic_decreasing = [1.,]
+        for _y in y[::-1]:
+            if _y < y_monotonic_decreasing[-1]:
+                y_monotonic_decreasing.append(_y)
+            else:
+                y_monotonic_decreasing.append(y_monotonic_decreasing[-1])
+        return np.asarray(y_monotonic_decreasing)[::-1]
+    
 
 def calc_fdr_arr(target_arr, decoy_arr, ascending=False):
     """
@@ -195,10 +205,17 @@ def score_msm(score_data_df):
 class decoy_adducts():
     #### Some class for dealing with FDR results ####
     def __init__(self, fname, target_adducts, decoy_adducts, shuf=None):
+        """
+        :param fname: path to csv with all the results from the pipeline (all_adducts)
+        :param target_adducts: list of target adducts searched for
+        :param decoy_adducts: list of decoy adducts searched for
+        :param shuf: shuffle method to remove structure from MSM vector (default: shuffle rows)
+        :return:
+        """
         self.target_adducts = target_adducts
         self.decoy_adducts = decoy_adducts
         self.shuf = shuf or _shuffle_rows
-        if type(fname) == str:
+        if any([isinstance(fname,str) , isinstance(fname,unicode)]):
             # read in raw score file and calculate metabolite signal match
             with open(fname) as f_in:
                 self.score_data_df = pd.read_csv(f_in, quotechar='"').fillna(0)
@@ -214,7 +231,7 @@ class decoy_adducts():
         self.sf_l = {}
         self.n_sf = {}
         for a in self.target_adducts:
-            self.sf_l[a] = np.unique(self.score_data_df.ix[self.score_data_df['adduct'] == a]["sf"])
+            self.sf_l[a] = self.score_data_df.ix[self.score_data_df['adduct'] == a]["sf"]
             self.n_sf[a] = len(self.sf_l[a])
 
     def decoy_adducts_get_pass_list(self, fdr_target, n_reps, col='msm', return_decoy=False):
