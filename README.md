@@ -41,7 +41,7 @@ source activate pySM
 
 Install `pySM` package with `pip`:
 ```bash
-pip install .
+pip install . -r requirements.txt
 ```
 
 #### Setting up a virtual environment using `virtualenv`
