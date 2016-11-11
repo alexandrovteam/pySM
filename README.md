@@ -1,5 +1,5 @@
 # README #
-This repository accompanies the article: *Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry* and provides a reference implementation of our pipeline for False Discovery Rate-controlled metabolite annotation of high-resolution imaging mass spectrometry data. 
+This repository accompanies the article: [*Palmer et al., FDR-controlled metabolite annotation for high-resolution imaging mass spectrometry*](http://dx.doi.org/10.1038/nmeth.4072) and provides a reference implementation of our pipeline for False Discovery Rate-controlled metabolite annotation of high-resolution imaging mass spectrometry data. 
 
 The pipeline is developed and implemented by the [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/) at EMBL Heidelberg.
 
