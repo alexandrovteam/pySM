@@ -208,7 +208,7 @@ print fdr.decoy_adducts_get_pass_list(fdr_target,n_reps=20,col='msm')
 ```
 This will print a list of molecular-formula for each target adduct that have an MSM score which results in an FDR of less than `fdr_target`. 
 ## Contact
-* email: [Andrew Palmer](mailto://andrew.palmer@embl.de)
+* email: [Andrew Palmer](mailto:andrew.palmer@embl.de)
 * twitter:  [@alexandrovteam](https://twitter.com/alexandrovteam "alexandrovteam on twitter")
  
 ## Licence
